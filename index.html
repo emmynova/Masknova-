@@ -3,24 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaskNova Tech</title>
-  <link rel="stylesheet" href="style.css">
+  <title>MaskNova - Sign In</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 40px;
+      color: #fff;
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
+      }
+      to {
+        text-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 60px #0ff;
+      }
+    }
+
+    button {
+      background: #0ff;
+      color: black;
+      border: none;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00cccc;
+    }
+  </style>
 </head>
 <body>
-  <!-- Splash Screen -->
-  <div id="splash">
-    <div class="mask-container">
-      <img src="assets/mask.png" alt="Mask Logo" class="mask-logo">
-      <div class="laser"></div>
-    </div>
-  </div>
+  <h1>MaskNova</h1>
+  <button id="googleSignInBtn">Sign in with Google</button>
 
-  <!-- Sign In Page -->
-  <div id="signin" class="hidden">
-    <h1 class="glow-text">MaskNova Tech</h1>
-    <button class="google-btn">Sign in with Google</button>
-  </div>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
-  <script src="script.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } 
+      from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+    // Firebase config (yours)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNcH25LT--rPgbDK-n3iw4BCrY0r9mYO4",
+      authDomain: "masknova-tech.firebaseapp.com",
+      projectId: "masknova-tech",
+      storageBucket: "masknova-tech.firebasestorage.app",
+      messagingSenderId: "580211441420",
+      appId: "1:580211441420:web:5f14aa92f08568a0581329",
+      measurementId: "G-43NSRQ9WG3"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // Sign in
+    document.getElementById("googleSignInBtn").addEventListener("click", () => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          console.log("Signed in:", user.displayName);
+          // Redirect to dashboard
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+  </script>
 </body>
 </html>
