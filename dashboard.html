@@ -1,0 +1,49 @@
+﻿<!-- Floating AI Button -->
+<button class="floating-ai" onclick="toggleChat()">+</button>
+
+<!-- AI Chat Popup -->
+<div id="chat-popup" class="chat-popup">
+  <div class="chat-header">
+    <span>Mask AI Assistant</span>
+    <button onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="ai-msg">Hello 👋 I'm Mask AI. How can I help you today?</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="user-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  function toggleChat() {
+    document.getElementById("chat-popup").classList.toggle("show");
+  }
+
+  function sendMessage() {
+    const input = document.getElementById("user-input");
+    const msg = input.value.trim();
+    if (msg === "") return;
+
+    // Add user message
+    const messages = document.getElementById("chat-messages");
+    const userMsg = document.createElement("div");
+    userMsg.className = "user-msg";
+    userMsg.textContent = msg;
+    messages.appendChild(userMsg);
+
+    input.value = "";
+
+    // Simulated AI response
+    setTimeout(() => {
+      const aiMsg = document.createElement("div");
+      aiMsg.className = "ai-msg";
+      aiMsg.textContent = "🤖 I'm thinking about your request...";
+      messages.appendChild(aiMsg);
+      messages.scrollTop = messages.scrollHeight;
+    }, 800);
+
+    messages.scrollTop = messages.scrollHeight;
+  }
+</script>
