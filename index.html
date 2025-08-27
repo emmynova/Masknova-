@@ -3,50 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaskNova</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    .logo {
-      width: 100px;
-      margin-bottom: 20px;
-    }
-    .loader {
-      margin-top: 20px;
-      width: 50px;
-      height: 50px;
-      border: 4px solid #0078ff;
-      border-top: 4px solid transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-  </style>
+  <title>MaskNova Tech</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <img src="mask.png" alt="MaskNova Logo" class="logo">
-  <h2>Welcome to MaskNova</h2>
-  <p>Loading your dashboard...</p>
-  <div class="loader"></div>
+  <!-- Splash Screen -->
+  <div id="splash">
+    <div class="mask-container">
+      <img src="assets/mask.png" alt="Mask Logo" class="mask-logo">
+      <div class="laser"></div>
+    </div>
+  </div>
 
-  <script>
-    // Redirect after 3 seconds
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 3000);
-  </script>
+  <!-- Sign In Page -->
+  <div id="signin" class="hidden">
+    <h1 class="glow-text">MaskNova Tech</h1>
+    <button class="google-btn">Sign in with Google</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
