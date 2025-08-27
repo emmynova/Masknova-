@@ -1,83 +1,281 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mask AI - Splash</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0a0a0a;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MaskNova — Splash</title>
+<style>
+  :root{
+    --bg:#05060a;
+    --neon1:#00d9ff;
+    --neon2:#6c64ff;
+    --text:#e6fbff;
+  }
+  html,body{height:100%;margin:0}
+  body{
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    background: radial-gradient(1200px 600px at 20% 80%, rgba(0,217,255,.03), transparent 60%),
+                radial-gradient(900px 600px at 80% 20%, rgba(108,100,255,.02), transparent 60%),
+                var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    color:var(--text);
+  }
 
-    .mascot {
-      width: 150px;
-      height: 150px;
-      margin-bottom: 30px;
-      animation: zoomIn 1.5s ease forwards;
-    }
+  /* Container so we can fade everything together */
+  .wrap{
+    position:relative;
+    width:100%;
+    max-width:1100px;
+    height:100vh;
+    display:grid;
+    place-items:center;
+    gap:18px;
+  }
 
-    @keyframes zoomIn {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+  /* moving aura behind mascot */
+  .aura{
+    position:absolute;
+    width:680px;
+    height:680px;
+    border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, rgba(0,217,255,0.36) 0%,
+               rgba(108,100,255,0.08) 40%, transparent 70%);
+    filter: blur(120px) saturate(120%);
+    z-index:0;
+    animation: auraMove 12s ease-in-out infinite;
+  }
+  @keyframes auraMove{
+    0%{transform:translate(-140px,-60px) scale(1)}
+    50%{transform:translate(120px,60px) scale(1.14)}
+    100%{transform:translate(-100px,40px) scale(1)}
+  }
 
-    .fade-text {
-      font-size: 1.5rem;
-      opacity: 0;
-      animation: fadeCycle 9s infinite;
-    }
+  /* mascot */
+  .mascot{
+    position:relative;
+    z-index:3;
+    width:260px;           /* bigger mascot */
+    max-width:45vmin;
+    filter: drop-shadow(0 0 20px rgba(0,217,255,.28));
+    animation: mascotPulse 3s ease-in-out infinite;
+  }
+  @keyframes mascotPulse{
+    0%{transform:translateY(0) scale(1); filter:drop-shadow(0 0 12px rgba(0,217,255,.25))}
+    50%{transform:translateY(-8px) scale(1.05); filter:drop-shadow(0 0 40px rgba(0,217,255,.45))}
+    100%{transform:translateY(0) scale(1); filter:drop-shadow(0 0 12px rgba(0,217,255,.25))}
+  }
 
-    @keyframes fadeCycle {
-      0%, 15% { opacity: 1; }
-      20%, 30% { opacity: 0; }
-      35%, 50% { opacity: 1; }
-      55%, 65% { opacity: 0; }
-      70%, 85% { opacity: 1; }
-      90%, 100% { opacity: 0; }
-    }
+  /* glowing text with glitch */
+  .text {
+    position:relative;
+    z-index:4;
+    margin-top:12px;
+    font-weight:700;
+    letter-spacing:.12em;
+    font-size:clamp(18px, 2.6vw, 28px);
+    color:var(--neon1);
+    text-shadow:
+      0 0 6px rgba(0,217,255,.7),
+      0 0 18px rgba(108,100,255,.35),
+      0 0 36px rgba(0,217,255,.12);
+    opacity:0;
+    animation: textFade 8s forwards;
+  }
 
-    .hidden {
-      display: none;
-    }
-  </style>
+  /* glitch pseudo layers */
+  .text.glitch{ display:inline-block; position:relative; }
+  .text.glitch::before,
+  .text.glitch::after{
+    content:attr(data-text);
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    pointer-events:none;
+    opacity:.9;
+    mix-blend-mode:screen;
+  }
+  .text.glitch::before{
+    transform:translate(2px,-2px);
+    color:#f07;
+    clip-path: inset(0 0 60% 0);
+    animation: glitchA 2s infinite linear;
+  }
+  .text.glitch::after{
+    transform:translate(-2px,2px);
+    color:#0ff;
+    clip-path: inset(40% 0 0 0);
+    animation: glitchB 1.6s infinite linear;
+  }
+  @keyframes glitchA{
+    0%{transform:translate(2px,-2px) scale(1)}
+    25%{transform:translate(-6px,3px) scale(1.02)}
+    50%{transform:translate(3px,-3px) scale(.98)}
+    75%{transform:translate(-2px,2px) scale(1)}
+    100%{transform:translate(2px,-2px) scale(1)}
+  }
+  @keyframes glitchB{
+    0%{transform:translate(-2px,2px)}
+    20%{transform:translate(4px,-4px)}
+    40%{transform:translate(-3px,3px)}
+    60%{transform:translate(5px,-2px)}
+    80%{transform:translate(-1px,4px)}
+    100%{transform:translate(-2px,2px)}
+  }
+
+  @keyframes textFade{
+    0%{opacity:0; transform:translateY(6px) scale(.99)}
+    20%{opacity:1; transform:translateY(0) scale(1)}
+    70%{opacity:1}
+    100%{opacity:0; transform:translateY(-6px) scale(.99)}
+  }
+
+  /* floating particles */
+  .particle{
+    position:absolute;
+    border-radius:50%;
+    background:var(--neon1);
+    opacity:0.8;
+    filter: blur(0.6px);
+    z-index:1;
+  }
+
+  @keyframes floatUp{
+    0%{transform:translateY(30vh) scale(.6); opacity:0}
+    10%{opacity:1}
+    100%{transform:translateY(-15vh) scale(1.1); opacity:0}
+  }
+
+  /* fade-out wrapper before redirect */
+  .fadeOut {
+    animation: fadeToBlack 1.2s ease forwards;
+    transform-origin:center;
+  }
+  @keyframes fadeToBlack{
+    to{opacity:0; transform:scale(1.02); filter:brightness(.3)}
+  }
+
+  /* a small overlay shown only if autoplay blocked (tap anywhere to continue) */
+  .interactOverlay{
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.4));
+    color:#dff; font-size:15px; text-align:center;
+    cursor:pointer; backdrop-filter: blur(4px);
+  }
+
+  /* reduced motion preference */
+  @media (prefers-reduced-motion: reduce){
+    .aura, .mascot, .particle { animation: none !important; }
+  }
+</style>
 </head>
 <body>
-  <!-- Replace src with your mascot image -->
-  <img src="mascot.png" alt="Mask AI Mascot" class="mascot">
+  <div class="wrap" id="wrap">
+    <div class="aura" aria-hidden="true"></div>
 
-  <div class="fade-text" id="fadeText"></div>
+    <!-- Mascot image (put mascot.png in same folder) -->
+    <img src="mascot.png" alt="Mask AI mascot" class="mascot" id="mascot">
+
+    <!-- Glitch text -->
+    <div class="text glitch" id="mainText" data-text="Powered by MaskNova Tech">Powered by MaskNova Tech</div>
+  </div>
+
+  <!-- Audio element (both wav + mp3 fallback if you prefer) -->
+  <audio id="introAudio" preload="auto">
+    <source src="masknova_intro.wav" type="audio/wav">
+    <source src="masknova_intro.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    const messages = [
-      "Welcome to Mask AI",
-      "Powered by MaskNova Tech",
-      "Your Future Starts Here"
-    ];
+    // CONFIG
+    const REDIRECT_TO = "dashboard/index.html"; // where to go after splash
+    const MIN_DISPLAY_MS = 5500;   // minimum visible duration
+    const EXTRA_MS_AFTER_SOUND = 300; // small gap after sound ends
 
-    let index = 0;
-    const fadeText = document.getElementById("fadeText");
+    const audio = document.getElementById('introAudio');
+    const wrap = document.getElementById('wrap');
 
-    function showText() {
-      fadeText.textContent = messages[index];
-      index = (index + 1) % messages.length;
+    // Create particles
+    (function createParticles(){
+      const count = 36;
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = 2 + Math.random()*6; // 2-8px
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = (Math.random()*100) + 'vw';
+        p.style.top = (50 + Math.random()*80) + 'vh';
+        p.style.background = (Math.random() > 0.6 ? 'radial-gradient(circle, rgba(108,100,255,0.9), rgba(0,217,255,0.4))' : 'rgba(0,217,255,' + (0.35+Math.random()*0.5) + ')');
+        p.style.opacity = (0.4 + Math.random()*0.8);
+        p.style.animationDuration = (6 + Math.random()*6) + 's';
+        p.style.animationDelay = (Math.random()*3) + 's';
+        p.style.animationName = 'floatUp';
+        p.style.animationTimingFunction = 'linear';
+        document.body.appendChild(p);
+      }
+    })();
+
+    // Try autoplay; if blocked, show a tiny overlay that waits for user tap to start.
+    function attemptPlay(){
+      audio.play().then(() => {
+        startTimerBasedOnAudio();
+      }).catch((err) => {
+        showTapOverlay();
+      });
     }
 
-    showText();
-    setInterval(showText, 3000);
+    // If autoplay blocked, overlay tells user to tap anywhere (minimal, only shows if necessary)
+    function showTapOverlay(){
+      const overlay = document.createElement('div');
+      overlay.className = 'interactOverlay';
+      overlay.innerHTML = '<div>Tap anywhere to start Mask AI</div>';
+      overlay.onclick = () => {
+        overlay.remove();
+        audio.play().catch(()=>{});
+        startTimerBasedOnAudio();
+      };
+      document.body.appendChild(overlay);
+    }
 
-    // Redirect after 10 seconds
-    setTimeout(() => {
-      window.location.href = "dashboard/index.html";
-    }, 10000);
+    // Compute redirect time: either wait for audio to end + buffer, or fallback to MIN_DISPLAY_MS
+    function startTimerBasedOnAudio(){
+      if (audio.readyState >= 2 && !isNaN(audio.duration) && audio.duration > 0){
+        const ms = Math.max(MIN_DISPLAY_MS, Math.round(audio.duration*1000) + EXTRA_MS_AFTER_SOUND);
+        scheduleRedirect(ms);
+      } else {
+        // if metadata not loaded yet, wait for it
+        audio.addEventListener('loadedmetadata', ()=>{
+          const ms = Math.max(MIN_DISPLAY_MS, Math.round(audio.duration*1000) + EXTRA_MS_AFTER_SOUND);
+          scheduleRedirect(ms);
+        }, {once:true});
+        // safety fallback
+        setTimeout(()=> scheduleRedirect(MIN_DISPLAY_MS + 1200), 1500);
+      }
+    }
+
+    // Add fade and then redirect
+    function scheduleRedirect(ms){
+      setTimeout(()=> {
+        wrap.classList.add('fadeOut');
+        setTimeout(()=> {
+          window.location.href = REDIRECT_TO;
+        }, 1200); // match CSS fade duration
+      }, ms);
+    }
+
+    // Start trying to play immediately
+    attemptPlay();
+
+    // Preload image (optional)
+    (function preload(){
+      const img = new Image();
+      img.src = document.getElementById('mascot').src;
+    })();
   </script>
 </body>
 </html>
