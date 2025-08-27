@@ -3,24 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaskNova Tech</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Mask AI - Splash</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    .mascot {
+      width: 150px;
+      height: 150px;
+      margin-bottom: 30px;
+      animation: zoomIn 1.5s ease forwards;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.7); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .fade-text {
+      font-size: 1.5rem;
+      opacity: 0;
+      animation: fadeCycle 9s infinite;
+    }
+
+    @keyframes fadeCycle {
+      0%, 15% { opacity: 1; }
+      20%, 30% { opacity: 0; }
+      35%, 50% { opacity: 1; }
+      55%, 65% { opacity: 0; }
+      70%, 85% { opacity: 1; }
+      90%, 100% { opacity: 0; }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <!-- Splash Screen -->
-  <div id="splash">
-    <div class="mask-container">
-      <img src="assets/mask.png" alt="Mask Logo" class="mask-logo">
-      <div class="laser"></div>
-    </div>
-  </div>
+  <!-- Replace src with your mascot image -->
+  <img src="mascot.png" alt="Mask AI Mascot" class="mascot">
 
-  <!-- Sign In Page -->
-  <div id="signin" class="hidden">
-    <h1 class="glow-text">MaskNova Tech</h1>
-    <button class="google-btn">Sign in with Google</button>
-  </div>
+  <div class="fade-text" id="fadeText"></div>
 
-  <script src="script.js"></script>
+  <script>
+    const messages = [
+      "Welcome to Mask AI",
+      "Powered by MaskNova Tech",
+      "Your Future Starts Here"
+    ];
+
+    let index = 0;
+    const fadeText = document.getElementById("fadeText");
+
+    function showText() {
+      fadeText.textContent = messages[index];
+      index = (index + 1) % messages.length;
+    }
+
+    showText();
+    setInterval(showText, 3000);
+
+    // Redirect after 10 seconds
+    setTimeout(() => {
+      window.location.href = "dashboard/index.html";
+    }, 10000);
+  </script>
 </body>
 </html>
