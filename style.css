@@ -33,3 +33,4 @@ a{color:var(--accent); text-decoration:none}
 /* responsive */
 @media (max-width:900px){ .sidebar{display:none} .main{padding:12px} }
 
+
