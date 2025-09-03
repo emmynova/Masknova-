@@ -1,148 +1,313 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MaskNova Tech Dashboard</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0a0a0f;
-      color: #fff;
-      overflow-x: hidden;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MaskNova Tech — Dashboard</title>
+<meta name="theme-color" content="#0a0a0a" />
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --card:#12121a;
+    --card2:#181824;
+    --text:#e9f1ff;
+    --muted:#9aa4b2;
+    --glow:rgba(0,255,255,.45);
+    --border:#2a2f3a;
+    --accent:#00e5ff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    background:radial-gradient(1200px 600px at 50% -20%, #102030 0%, #0a0a0f 40%, #000 100%);
+    color:var(--text);
+  }
 
-    header {
-      text-align: center;
-      padding: 2rem 1rem;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: bold;
-      letter-spacing: 3px;
-      animation: rainbowGlow 5s linear infinite;
-    }
-    @keyframes rainbowGlow {
-      0% { color: red; text-shadow: 0 0 10px red; }
-      20% { color: orange; text-shadow: 0 0 10px orange; }
-      40% { color: yellow; text-shadow: 0 0 10px yellow; }
-      60% { color: lime; text-shadow: 0 0 10px lime; }
-      80% { color: cyan; text-shadow: 0 0 10px cyan; }
-      100% { color: violet; text-shadow: 0 0 10px violet; }
-    }
+  /* Header: rainbow glow MASKNOVA TECH */
+  header{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,0));
+    backdrop-filter:blur(6px);
+    padding:18px 16px 8px;
+  }
+  .brand{
+    margin:0;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight:800;
+    letter-spacing:.12em;
+    line-height:1.1;
+    background:linear-gradient(90deg, #ff004c, #ff8a00, #ffd500, #00d97e, #00e5ff, #7a5cff, #ff3ee6);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow:0 0 16px rgba(122,92,255,.35), 0 0 28px rgba(0,229,255,.25);
+    animation:brandGlow 2.6s ease-in-out infinite alternate;
+    text-align:center;
+  }
+  @keyframes brandGlow{
+    from { filter: drop-shadow(0 0 6px rgba(0,229,255,.35)) drop-shadow(0 0 14px rgba(255,62,230,.2)); }
+    to   { filter: drop-shadow(0 0 18px rgba(0,229,255,.55)) drop-shadow(0 0 32px rgba(255,62,230,.35)); }
+  }
 
-    .motivation {
-      max-width: 700px;
-      margin: 0 auto 2rem;
-      background: rgba(255,255,255,0.05);
-      border: 2px solid #0ff;
-      border-radius: 15px;
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 0 15px #0ff;
-      font-size: 1.2rem;
-      line-height: 1.5;
-      animation: pulse 3s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 15px #0ff; }
-      50% { box-shadow: 0 0 30px #0ff; }
-    }
+  /* Motivation ticker */
+  .motivation{
+    max-width: 980px;
+    margin: 10px auto 22px;
+    padding: 14px 18px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    box-shadow: 0 0 18px rgba(0, 229, 255, .12), inset 0 0 0 1px rgba(255,255,255,.02);
+    position: relative;
+    overflow: hidden;
+  }
+  .mot-line{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transform: translateY(8px) scale(.98);
+    transition: opacity .8s ease, transform .8s ease;
+    padding: 14px 10px;
+    font-size: clamp(14px, 2.6vw, 18px);
+    font-weight:600;
+    color: var(--text);
+    text-align:center;
+    text-shadow: 0 0 10px rgba(0,229,255,.25);
+  }
+  .mot-line.active{opacity:1; transform: translateY(0) scale(1)}
+  .mot-accent{color:var(--accent)}
+  .mot-emoji{filter: drop-shadow(0 0 8px rgba(0,229,255,.35));}
 
-    .tools {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 1rem;
-    }
-    .tool-card {
-      background: rgba(255,255,255,0.05);
-      border: 2px solid #444;
-      border-radius: 20px;
-      padding: 2rem 1rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    .tool-card:hover {
-      border-color: #0ff;
-      box-shadow: 0 0 25px #0ff;
-      transform: translateY(-5px);
-    }
-    .tool-card h3 {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-    }
+  /* Search */
+  .toolbar{
+    max-width: 980px; margin: 0 auto 10px; padding: 0 8px;
+    display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap;
+  }
+  .search{
+    flex:1 1 520px; display:flex; align-items:center; gap:10px;
+    background: var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.02), 0 0 14px rgba(0,229,255,.08);
+  }
+  .search input{
+    flex:1; background:transparent; border:0; outline:0; color:var(--text);
+    font-size:16px; padding:8px 2px;
+  }
+  .pill{
+    font-size:12px; color:var(--muted); border:1px solid var(--border);
+    padding:6px 10px; border-radius:999px; background:var(--card2)
+  }
 
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-    footer span {
-      color: #0ff;
-    }
-  </style>
+  /* Grid */
+  main{max-width:1200px; margin:0 auto; padding: 8px 14px 60px;}
+  .section{
+    margin-top: 26px;
+  }
+  .section h2{
+    margin: 0 0 12px;
+    font-size: clamp(18px, 2.5vw, 22px);
+    font-weight:800; letter-spacing:.04em;
+    color:#bfeaff;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+    gap:14px;
+  }
+  .card{
+    position:relative;
+    background: linear-gradient(180deg, rgba(32,36,48,.55), rgba(20,22,30,.8));
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:16px 14px;
+    min-height:120px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    box-shadow: 0 0 0 0 rgba(0,229,255,.0);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    text-decoration:none; color:var(--text);
+  }
+  .card:hover{
+    transform: translateY(-4px);
+    border-color: rgba(0,229,255,.55);
+    box-shadow: 0 0 24px rgba(0,229,255,.25);
+  }
+  .card .icon{font-size:28px; line-height:1; filter: drop-shadow(0 0 8px rgba(0,229,255,.35));}
+  .card h3{margin:10px 0 4px; font-size:16px}
+  .card p{margin:0; font-size:13px; color:var(--muted)}
+  .badge{
+    position:absolute; top:10px; right:10px;
+    font-size:10px; padding:4px 8px; border-radius:999px;
+    background: rgba(0,229,255,.12); color:#bff7ff; border:1px solid rgba(0,229,255,.35);
+  }
+  .soon{opacity:.8}
+  .soon::after{
+    content:"Coming Soon";
+    position:absolute; bottom:10px; right:10px;
+    font-size:10px; color:#9aa4b2; border:1px dashed #3a4352; border-radius:999px; padding:3px 6px;
+  }
+
+  footer{
+    max-width:1200px; margin:40px auto 24px; padding: 0 14px;
+    color:#9aa4b2; text-align:center; font-size:12px;
+  }
+  footer b{color:#c7f6ff}
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>MASKNOVA TECH</h1>
-  </header>
+<header>
+  <h1 class="brand">MASKNOVA TECH</h1>
+</header>
 
-  <!-- Motivation -->
-  <section class="motivation" id="motivation">
-    Loading daily quote...
+<!-- Motivation ticker (auto-switch) -->
+<div class="motivation" id="motivation">
+  <div class="mot-line active">🚀 <span class="mot-accent">Create</span> every day. Small steps → big results.</div>
+  <div class="mot-line">⚡ Consistency beats talent when talent doesn’t <span class="mot-accent">show up</span>.</div>
+  <div class="mot-line">💡 Build tools that people <span class="mot-accent">use</span> — the rest follows.</div>
+  <div class="mot-line">🌍 The internet rewards those who <span class="mot-accent">ship</span>.</div>
+  <div class="mot-line">🔥 Make it useful. Make it fast. Make it <span class="mot-accent">MaskNova</span>.</div>
+</div>
+
+<!-- Search/filter bar -->
+<div class="toolbar">
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.2-4.2M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#8fd8ff" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <input id="toolSearch" type="text" placeholder="Search tools… (e.g., AI Writer, PDF, Translator)" />
+  </div>
+  <div class="pill">Dark • Neon</div>
+</div>
+
+<main>
+
+  <!-- Core AI -->
+  <section class="section">
+    <h2>Core AI</h2>
+    <div class="grid" id="grid-core-ai">
+      <a href="tools/ai-chat.html" class="card soon" data-tags="ai,chat,assistant,mask ai"><div class="icon">🤖</div><h3>Mask AI Assistant</h3><p>Ask anything. Smart, fast answers.</p></a>
+      <a href="tools/ai-writer.html" class="card soon" data-tags="ai,writer,blog,caption,content"><div class="icon">📝</div><h3>AI Writer</h3><p>Blogs, captions, emails, scripts.</p></a>
+      <a href="tools/ai-image.html" class="card soon" data-tags="ai,image,generator,art,logo"><div class="icon">🎨</div><h3>AI Image Generator</h3><p>Create images from text.</p></a>
+      <a href="tools/ai-video.html" class="card soon" data-tags="ai,video,generator,clips,ads"><div class="icon">🎥</div><h3>AI Video Generator</h3><p>Short clips, intros, ads.</p></a>
+      <a href="tools/ai-music.html" class="card soon" data-tags="ai,music,beat,composer,tts"><div class="icon">🎵</div><h3>AI Music Composer</h3><p>Generate beats & loops.</p></a>
+      <a href="tools/ai-doc-helper.html" class="card soon" data-tags="ai,document,summary,translate,proofread,pdf"><div class="icon">📄</div><h3>AI Document Helper</h3><p>Summarize • Translate • Fix.</p></a>
+      <a href="tools/ai-logo-banner.html" class="card soon" data-tags="ai,logo,banner,design,brand"><div class="icon">🧑‍🎨</div><h3>AI Logo & Banner</h3><p>Brand visuals in seconds.</p></a>
+      <a href="tools/ai-code-helper.html" class="card soon" data-tags="ai,code,debug,explain"><div class="icon">💻</div><h3>AI Code Helper</h3><p>Explain, fix, and generate code.</p></a>
+    </div>
   </section>
 
-  <!-- Tools -->
-  <section class="tools">
-    <div class="tool-card" onclick="alert('Mask AI Coming Soon!')">
-      🤖 <h3>Mask AI Assistant</h3>
-    </div>
-    <div class="tool-card" onclick="alert('Music/Video Player Coming Soon!')">
-      🎵 <h3>Music & Video</h3>
-    </div>
-    <div class="tool-card" onclick="alert('PDF Tools Coming Soon!')">
-      📄 <h3>File Tools</h3>
-    </div>
-    <div class="tool-card" onclick="alert('Notes Coming Soon!')">
-      ✅ <h3>Notes / Tasks</h3>
-    </div>
-    <div class="tool-card" onclick="alert('Voice Tools Coming Soon!')">
-      🎙️ <h3>Voice Tools</h3>
+  <!-- Media & Creation -->
+  <section class="section">
+    <h2>Media & Creation</h2>
+    <div class="grid">
+      <a href="tools/media-hub.html" class="card soon" data-tags="music,video,player,download"><div class="icon">📺</div><h3>Media Hub</h3><p>Music & video center.</p></a>
+      <a href="tools/image-editor.html" class="card soon" data-tags="image,edit,crop,resize,filters"><div class="icon">🖼️</div><h3>Online Image Editor</h3><p>Crop, resize, filters.</p></a>
+      <a href="tools/background-remover.html" class="card soon" data-tags="image,remove background,cutout"><div class="icon">🪄</div><h3>Background Remover</h3><p>AI cut-out in 1 click.</p></a>
+      <a href="tools/meme-generator.html" class="card soon" data-tags="meme,fun,image,text"><div class="icon">😄</div><h3>Meme Generator</h3><p>Make memes fast.</p></a>
+      <a href="tools/video-captioner.html" class="card soon" data-tags="video,caption,subtitles"><div class="icon">🔤</div><h3>Video Caption Generator</h3><p>Auto subtitles for clips.</p></a>
+      <a href="tools/logo-maker.html" class="card soon" data-tags="logo,brand,design"><div class="icon">🔰</div><h3>Logo Maker</h3><p>Simple logo builder.</p></a>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer>
-    © <span>MaskNova Tech</span> — All Rights Reserved
-  </footer>
+  <!-- Productivity & Docs -->
+  <section class="section">
+    <h2>Productivity & Docs</h2>
+    <div class="grid">
+      <a href="tools/pdf-tools.html" class="card soon" data-tags="pdf,merge,split,compress,convert"><div class="icon">📚</div><h3>PDF Tools</h3><p>Merge • Split • Compress</p></a>
+      <a href="tools/file-converter.html" class="card soon" data-tags="file,convert,image,audio,video,doc"><div class="icon">♻️</div><h3>File Converter</h3><p>Images • Audio • Video • Docs</p></a>
+      <a href="tools/translator.html" class="card soon" data-tags="translate,language,multilingual"><div class="icon">🌐</div><h3>Translator</h3><p>Instant multi-language.</p></a>
+      <a href="tools/notes.html" class="card soon" data-tags="notes,todo,tasks,planner"><div class="icon">📝</div><h3>Notes & To-Do</h3><p>Capture ideas & tasks.</p></a>
+      <a href="tools/tts.html" class="card soon" data-tags="voice,tts,text to speech"><div class="icon">🗣️</div><h3>Text → Speech</h3><p>Natural voice from text.</p></a>
+      <a href="tools/stt.html" class="card soon" data-tags="voice,stt,speech to text"><div class="icon">🎙️</div><h3>Speech → Text</h3><p>Transcribe audio quickly.</p></a>
+      <a href="tools/dictionary.html" class="card soon" data-tags="dictionary,thesaurus,definition"><div class="icon">📖</div><h3>Dictionary & Thesaurus</h3><p>Meanings & synonyms.</p></a>
+      <a href="tools/qr.html" class="card soon" data-tags="qr,code,generator,scanner"><div class="icon">▣</div><h3>QR Generator/Scanner</h3><p>Create & scan instantly.</p></a>
+    </div>
+  </section>
 
-  <script>
-    // Daily quotes
-    const quotes = [
-      "🚀 The future belongs to those who create it.",
-      "🔥 Great things never come from comfort zones.",
-      "🌍 Dream it. Build it. Live it.",
-      "💡 Innovation distinguishes between a leader and a follower.",
-      "⏳ Success is the sum of small efforts repeated daily.",
-      "⚡ Don't watch the clock; do what it does. Keep going.",
-      "🌟 Your potential is endless. Believe in it."
-    ];
+  <!-- Learning & Career -->
+  <section class="section">
+    <h2>Learning & Career</h2>
+    <div class="grid">
+      <a href="tools/study-helper.html" class="card soon" data-tags="math,science,study,exams"><div class="icon">🧠</div><h3>Study Helper</h3><p>Math • Science • English</p></a>
+      <a href="tools/flashcards.html" class="card soon" data-tags="flashcards,quiz,learn"><div class="icon">🗂️</div><h3>Flashcards & Quiz</h3><p>Remember faster.</p></a>
+      <a href="tools/resume-builder.html" class="card soon" data-tags="resume,cv,job,career"><div class="icon">💼</div><h3>Resume & CV Builder</h3><p>ATS-friendly templates.</p></a>
+      <a href="tools/citation-generator.html" class="card soon" data-tags="citation,apa,mla,harvard"><div class="icon">🔖</div><h3>Citation Generator</h3><p>APA • MLA • Harvard</p></a>
+      <a href="tools/plagiarism-checker.html" class="card soon" data-tags="plagiarism,checker,originality"><div class="icon">🧪</div><h3>Plagiarism Checker</h3><p>Originality scan.</p></a>
+      <a href="tools/learning-hub.html" class="card soon" data-tags="courses,tutorials,learn"><div class="icon">📚</div><h3>Learning Hub</h3><p>Curated resources.</p></a>
+    </div>
+  </section>
 
-    // Pick quote based on the day of the year
-    const today = new Date();
-    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
-    const quote = quotes[dayOfYear % quotes.length];
+  <!-- Money & Business -->
+  <section class="section">
+    <h2>Money & Business</h2>
+    <div class="grid">
+      <a href="tools/budget-tracker.html" class="card soon" data-tags="budget,expense,money"><div class="icon">💰</div><h3>Budget Tracker</h3><p>Track income & spend.</p></a>
+      <a href="tools/invoice-generator.html" class="card soon" data-tags="invoice,billing,receipt"><div class="icon">📑</div><h3>Invoice Generator</h3><p>Simple professional bills.</p></a>
+      <a href="tools/crypto-stocks.html" class="card soon" data-tags="crypto,stocks,markets"><div class="icon">📈</div><h3>Crypto & Stocks</h3><p>Track live markets.</p></a>
+      <a href="tools/domain-checker.html" class="card soon" data-tags="domain,checker,name"><div class="icon">🌐</div><h3>Domain Name Checker</h3><p>Find great names.</p></a>
+      <a href="tools/business-name.html" class="card soon" data-tags="business,name,generator"><div class="icon">🏷️</div><h3>Business Name Generator</h3><p>Catchy brand ideas.</p></a>
+      <a href="tools/marketplace.html" class="card soon" data-tags="marketplace,downloads,templates"><div class="icon">🛒</div><h3>Marketplace</h3><p>Digital products hub.</p></a>
+    </div>
+  </section>
 
-    document.getElementById("motivation").innerText = quote;
-  </script>
+  <!-- Fun & Engagement -->
+  <section class="section">
+    <h2>Fun & Engagement</h2>
+    <div class="grid">
+      <a href="tools/games.html" class="card soon" data-tags="games,fun,play"><div class="icon">🎮</div><h3>Games Zone</h3><p>Play & chill.</p></a>
+      <a href="tools/jokes.html" class="card soon" data-tags="jokes,funny,laugh"><div class="icon">😂</div><h3>Random Jokes</h3><p>Quick laughs.</p></a>
+      <a href="tools/horoscope.html" class="card soon" data-tags="horoscope,zodiac,astro"><div class="icon">✨</div><h3>Horoscope</h3><p>Daily zodiac vibes.</p></a>
+      <a href="tools/personality-quiz.html" class="card soon" data-tags="quiz,personality,fun"><div class="icon">🧩</div><h3>Personality Quiz</h3><p>Know your style.</p></a>
+      <a href="tools/movie-recommender.html" class="card soon" data-tags="ai,movie,recommend"><div class="icon">🎬</div><h3>AI Movie Recommender</h3><p>Find what to watch.</p></a>
+      <a href="tools/weather.html" class="card soon" data-tags="weather,location,temp"><div class="icon">☁️</div><h3>Weather</h3><p>Live conditions.</p></a>
+    </div>
+  </section>
+
+  <!-- Future / Search -->
+  <section class="section">
+    <h2>Future</h2>
+    <div class="grid">
+      <a href="tools/search.html" class="card soon" data-tags="search,engine,web"><div class="icon">🔎</div><h3>MaskNova Search</h3><p>Universal search engine.</p></a>
+      <a href="tools/timezones.html" class="card soon" data-tags="time,timezones,clock"><div class="icon">⏰</div><h3>World Time</h3><p>Time zones & clocks.</p></a>
+      <a href="tools/unit-converter.html" class="card soon" data-tags="units,converter,math"><div class="icon">📏</div><h3>Unit Converter</h3><p>Length, weight, temp…</p></a>
+      <a href="tools/currency.html" class="card soon" data-tags="currency,converter,rates"><div class="icon">💱</div><h3>Currency Converter</h3><p>Live FX rates.</p></a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © <b>MaskNova Tech</b> — All rights reserved • Built for the future
+</footer>
+
+<script>
+  // Motivation switcher (fade)
+  const lines = [...document.querySelectorAll('.mot-line')];
+  let motIndex = 0;
+  setInterval(() => {
+    lines[motIndex].classList.remove('active');
+    motIndex = (motIndex + 1) % lines.length;
+    lines[motIndex].classList.add('active');
+  }, 5000);
+
+  // Search filter
+  const search = document.getElementById('toolSearch');
+  const cards = [...document.querySelectorAll('.card')];
+  search.addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    cards.forEach(c => {
+      const text = (c.innerText + ' ' + (c.dataset.tags || '')).toLowerCase();
+      c.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+
+  // Prevent navigation for "Coming Soon" cards so you can share structure now
+  document.querySelectorAll('.card.soon').forEach(c => {
+    c.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = c.querySelector('h3')?.textContent || 'This tool';
+      alert(`${name} is coming soon. Stay tuned!`);
+    });
+  });
+</script>
 
 </body>
 </html>
