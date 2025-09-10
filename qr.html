@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Tool — MaskNova Tech</title>
+<style>
+  body {margin:0; font-family:sans-serif; background:#0a0a0f; color:#fff; padding:20px; text-align:center;}
+  .back-btn {display:inline-block; margin-bottom:18px; padding:10px 16px; border-radius:8px;
+    background:#181824; border:1px solid #2a2f3a; color:#fff; text-decoration:none;}
+  h1 {color:#00e5ff; margin-bottom:20px;}
+  .section {background:#12121a; padding:20px; border-radius:12px; margin-bottom:20px;}
+  #reader {width:100%; max-width:400px; margin:0 auto;}
+  input,button {padding:10px; margin:10px 0; border-radius:8px; border:1px solid #2a2f3a; background:#181824; color:#fff;}
+  button {cursor:pointer; background:#00e5ff; color:#000; font-weight:bold;}
+  #qrcode {margin-top:15px;}
+  a.link {color:#00e5ff; text-decoration:none;}
+</style>
+</head>
+<body>
+
+<a href="../dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+<h1>📷 QR Scanner & Generator ▣</h1>
+
+<div class="section">
+  <h2>Scan QR Code</h2>
+  <div id="reader"></div>
+  <p id="scan-result">No QR code scanned yet.</p>
+</div>
+
+<div class="section">
+  <h2>Generate QR Code</h2>
+  <input type="text" id="qr-input" placeholder="Enter text or link">
+  <button onclick="makeQR()">Generate</button>
+  <div id="qrcode"></div>
+  <p id="qr-link"></p>
+  <button onclick="downloadQR()">Download QR</button>
+  <button onclick="copyText()">Copy Link/Text</button>
+</div>
+
+<!-- Libraries -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<script>
+  // QR Scanner
+  function onScanSuccess(decodedText) {
+    let resBox = document.getElementById("scan-result");
+    if (decodedText.startsWith("http")) {
+      resBox.innerHTML = `Scanned: <a class="link" href="${decodedText}" target="_blank">${decodedText}</a>`;
+    } else {
+      resBox.textContent = "Scanned: " + decodedText;
+    }
+  }
+
+  let html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", { fps: 10, qrbox: 250 }
+  );
+  html5QrcodeScanner.render(onScanSuccess);
+
+  // QR Generator
+  let qr;
+  function makeQR(){
+    let input=document.getElementById("qr-input").value.trim();
+    let qrBox=document.getElementById("qrcode");
+    let linkBox=document.getElementById("qr-link");
+    qrBox.innerHTML=""; linkBox.innerHTML="";
+    if(!input){qrBox.innerHTML="<p>Enter text first!</p>"; return;}
+    qr=new QRCode(qrBox,{text:input,width:200,height:200});
+    if(input.startsWith("http")){
+      linkBox.innerHTML=`Link: <a class="link" href="${input}" target="_blank">${input}</a>`;
+    } else {
+      linkBox.textContent="Text: "+input;
+    }
+  }
+
+  function downloadQR(){
+    let img=document.querySelector("#qrcode img");
+    if(!img){alert("Generate QR first!"); return;}
+    let a=document.createElement("a");
+    a.href=img.src;
+    a.download="qrcode.png";
+    a.click();
+  }
+
+  function copyText(){
+    let input=document.getElementById("qr-input").value.trim();
+    if(!input){alert("Enter text first!"); return;}
+    navigator.clipboard.writeText(input).then(()=>alert("Copied!"));
+  }
+</script>
+
+</body>
+</html>
