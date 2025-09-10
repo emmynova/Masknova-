@@ -11,7 +11,6 @@
     --card2:#181824;
     --text:#e9f1ff;
     --muted:#9aa4b2;
-    --glow:rgba(0,255,255,.45);
     --border:#2a2f3a;
     --accent:#00e5ff;
   }
@@ -20,7 +19,25 @@
     margin:0; font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial;
     background:radial-gradient(1200px 600px at 50% -20%, #102030 0%, #0a0a0f 40%, #000 100%);
     color:var(--text); min-height:100vh; padding:20px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .back-btn {
+    display:inline-block;
+    margin-bottom:18px;
+    padding:10px 16px;
+    border-radius:10px;
+    background:var(--card2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:14px;
+    text-decoration:none;
+    transition:.2s;
+    box-shadow:0 0 10px rgba(0,229,255,.2);
+  }
+  .back-btn:hover {
+    background:var(--accent);
+    color:#000;
+    box-shadow:0 0 18px rgba(0,229,255,.5);
   }
   h1{
     font-size: clamp(28px, 5vw, 40px);
@@ -32,7 +49,7 @@
   .card{
     background:linear-gradient(180deg, rgba(32,36,48,.55), rgba(20,22,30,.9));
     border:1px solid var(--border); border-radius:18px;
-    padding:24px; max-width:420px; width:100%;
+    padding:24px; max-width:460px; width:100%;
     box-shadow:0 0 24px rgba(0,229,255,.12);
   }
   label{font-size:14px; color:var(--muted); display:block; margin:10px 0 6px;}
@@ -55,28 +72,8 @@
 </style>
 </head>
 <body>
-<a href="../dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
 
-<style>
-  .back-btn {
-    display:inline-block;
-    margin-bottom:18px;
-    padding:10px 16px;
-    border-radius:10px;
-    background:var(--card2);
-    border:1px solid var(--border);
-    color:var(--text);
-    font-size:14px;
-    text-decoration:none;
-    transition:.2s;
-    box-shadow:0 0 10px rgba(0,229,255,.2);
-  }
-  .back-btn:hover {
-    background:var(--accent);
-    color:#000;
-    box-shadow:0 0 18px rgba(0,229,255,.5);
-  }
-</style>
+<a href="../dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
 
 <h1>💱 Currency Converter</h1>
 <div class="card">
@@ -99,14 +96,14 @@
   const toSel = document.getElementById("to");
   const resultBox = document.getElementById("result");
   const statusBox = document.getElementById("status");
-  let rates = null;
+  let rates = {};
 
-  // offline fallback rates (against USD)
+  // offline fallback
   const offlineRates = {
-    USD:1, EUR:0.92, GBP:0.78, NGN:1600, JPY:147, CAD:1.36, AUD:1.52, INR:83
+    USD:1, EUR:0.92, GBP:0.78, NGN:1600, BTC:0.000016, ETH:0.00025
   };
 
-  // populate dropdowns
+  // Populate dropdowns
   function populate(codes){
     fromSel.innerHTML=""; toSel.innerHTML="";
     codes.forEach(c=>{
@@ -120,14 +117,24 @@
     fromSel.value="USD"; toSel.value="NGN";
   }
 
-  // try fetch online rates
   async function fetchRates(){
     try{
-      const res=await fetch("https://api.frankfurter.app/latest?from=USD");
-      const data=await res.json();
-      rates = {USD:1, ...data.rates};
-      populate(Object.keys(rates).sort());
-      statusBox.textContent="✅ Online rates loaded";
+      // 1. Fiat rates
+      const resFiat = await fetch("https://api.exchangerate.host/latest?base=USD");
+      const dataFiat = await resFiat.json();
+      rates = { USD:1, ...dataFiat.rates };
+
+      // 2. Crypto rates (top coins)
+      const resCrypto = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=50&page=1");
+      const dataCrypto = await resCrypto.json();
+
+      dataCrypto.forEach(c=>{
+        rates[c.symbol.toUpperCase()] = 1 / c.current_price; // 1 USD = X coin
+      });
+
+      const allCodes = Object.keys(rates).sort();
+      populate(allCodes);
+      statusBox.textContent="✅ Live fiat + crypto rates loaded";
     }catch(e){
       rates = offlineRates;
       populate(Object.keys(rates).sort());
@@ -139,9 +146,11 @@
     const amt=parseFloat(document.getElementById("amount").value);
     const from=fromSel.value, to=toSel.value;
     if(isNaN(amt)){ resultBox.textContent="Enter a valid amount"; return; }
-    let usd = amt / rates[from];
-    let converted = usd * rates[to];
-    resultBox.textContent = `${amt} ${from} = ${converted.toFixed(2)} ${to}`;
+    if(!rates[from] || !rates[to]){ resultBox.textContent="Currency not available"; return; }
+
+    let usdValue = amt / rates[from];  // Convert to USD first
+    let converted = usdValue * rates[to];
+    resultBox.textContent = `${amt} ${from} = ${converted.toFixed(6)} ${to}`;
   });
 
   fetchRates();
