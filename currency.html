@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Currency Converter — MaskNova Tech</title>
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --card:#12121a;
+    --card2:#181824;
+    --text:#e9f1ff;
+    --muted:#9aa4b2;
+    --glow:rgba(0,255,255,.45);
+    --border:#2a2f3a;
+    --accent:#00e5ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial;
+    background:radial-gradient(1200px 600px at 50% -20%, #102030 0%, #0a0a0f 40%, #000 100%);
+    color:var(--text); min-height:100vh; padding:20px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  h1{
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight:800; margin-bottom:20px;
+    background:linear-gradient(90deg,#00e5ff,#7a5cff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-align:center; text-shadow:0 0 14px rgba(0,229,255,.4);
+  }
+  .card{
+    background:linear-gradient(180deg, rgba(32,36,48,.55), rgba(20,22,30,.9));
+    border:1px solid var(--border); border-radius:18px;
+    padding:24px; max-width:420px; width:100%;
+    box-shadow:0 0 24px rgba(0,229,255,.12);
+  }
+  label{font-size:14px; color:var(--muted); display:block; margin:10px 0 6px;}
+  input,select,button{
+    width:100%; padding:12px; border-radius:10px; border:1px solid var(--border);
+    background:var(--card2); color:var(--text); font-size:16px;
+    margin-bottom:14px; outline:none;
+  }
+  button{
+    background:var(--accent); color:#000; font-weight:600; cursor:pointer;
+    box-shadow:0 0 12px rgba(0,229,255,.35); transition:.2s;
+  }
+  button:hover{transform:translateY(-2px); box-shadow:0 0 20px rgba(0,229,255,.55);}
+  .result{
+    margin-top:12px; padding:14px; border-radius:12px; background:var(--card);
+    border:1px solid var(--border); font-size:18px; text-align:center;
+    box-shadow:inset 0 0 12px rgba(0,229,255,.15);
+  }
+  .status{text-align:center; font-size:13px; color:var(--muted); margin-top:8px;}
+</style>
+</head>
+<body>
+<a href="../dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+
+<style>
+  .back-btn {
+    display:inline-block;
+    margin-bottom:18px;
+    padding:10px 16px;
+    border-radius:10px;
+    background:var(--card2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:14px;
+    text-decoration:none;
+    transition:.2s;
+    box-shadow:0 0 10px rgba(0,229,255,.2);
+  }
+  .back-btn:hover {
+    background:var(--accent);
+    color:#000;
+    box-shadow:0 0 18px rgba(0,229,255,.5);
+  }
+</style>
+
+<h1>💱 Currency Converter</h1>
+<div class="card">
+  <label for="amount">Amount</label>
+  <input type="number" id="amount" placeholder="Enter amount" />
+
+  <label for="from">From</label>
+  <select id="from"></select>
+
+  <label for="to">To</label>
+  <select id="to"></select>
+
+  <button id="convert">Convert</button>
+  <div class="result" id="result">Converted amount will appear here</div>
+  <div class="status" id="status">Checking rates…</div>
+</div>
+
+<script>
+  const fromSel = document.getElementById("from");
+  const toSel = document.getElementById("to");
+  const resultBox = document.getElementById("result");
+  const statusBox = document.getElementById("status");
+  let rates = null;
+
+  // offline fallback rates (against USD)
+  const offlineRates = {
+    USD:1, EUR:0.92, GBP:0.78, NGN:1600, JPY:147, CAD:1.36, AUD:1.52, INR:83
+  };
+
+  // populate dropdowns
+  function populate(codes){
+    fromSel.innerHTML=""; toSel.innerHTML="";
+    codes.forEach(c=>{
+      let opt1=document.createElement("option");
+      let opt2=document.createElement("option");
+      opt1.value=opt2.value=c;
+      opt1.textContent=opt2.textContent=c;
+      fromSel.appendChild(opt1);
+      toSel.appendChild(opt2);
+    });
+    fromSel.value="USD"; toSel.value="NGN";
+  }
+
+  // try fetch online rates
+  async function fetchRates(){
+    try{
+      const res=await fetch("https://api.frankfurter.app/latest?from=USD");
+      const data=await res.json();
+      rates = {USD:1, ...data.rates};
+      populate(Object.keys(rates).sort());
+      statusBox.textContent="✅ Online rates loaded";
+    }catch(e){
+      rates = offlineRates;
+      populate(Object.keys(rates).sort());
+      statusBox.textContent="⚠️ Offline mode: using sample rates";
+    }
+  }
+
+  document.getElementById("convert").addEventListener("click", ()=>{
+    const amt=parseFloat(document.getElementById("amount").value);
+    const from=fromSel.value, to=toSel.value;
+    if(isNaN(amt)){ resultBox.textContent="Enter a valid amount"; return; }
+    let usd = amt / rates[from];
+    let converted = usd * rates[to];
+    resultBox.textContent = `${amt} ${from} = ${converted.toFixed(2)} ${to}`;
+  });
+
+  fetchRates();
+</script>
+
+</body>
+</html>
