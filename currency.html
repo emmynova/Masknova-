@@ -103,17 +103,42 @@
     USD:1, EUR:0.92, GBP:0.78, NGN:1600, BTC:0.000016, ETH:0.00025
   };
 
-  // Populate dropdowns
-  function populate(codes){
+  function populate(fiats, cryptos){
     fromSel.innerHTML=""; toSel.innerHTML="";
-    codes.forEach(c=>{
+
+    let fiatGroupFrom = document.createElement("optgroup");
+    fiatGroupFrom.label = "🌍 Fiat Currencies";
+    let fiatGroupTo = document.createElement("optgroup");
+    fiatGroupTo.label = "🌍 Fiat Currencies";
+
+    fiats.forEach(c=>{
       let opt1=document.createElement("option");
       let opt2=document.createElement("option");
       opt1.value=opt2.value=c;
       opt1.textContent=opt2.textContent=c;
-      fromSel.appendChild(opt1);
-      toSel.appendChild(opt2);
+      fiatGroupFrom.appendChild(opt1);
+      fiatGroupTo.appendChild(opt2);
     });
+
+    let cryptoGroupFrom = document.createElement("optgroup");
+    cryptoGroupFrom.label = "🪙 Cryptocurrencies";
+    let cryptoGroupTo = document.createElement("optgroup");
+    cryptoGroupTo.label = "🪙 Cryptocurrencies";
+
+    cryptos.forEach(c=>{
+      let opt1=document.createElement("option");
+      let opt2=document.createElement("option");
+      opt1.value=opt2.value=c;
+      opt1.textContent=opt2.textContent=c;
+      cryptoGroupFrom.appendChild(opt1);
+      cryptoGroupTo.appendChild(opt2);
+    });
+
+    fromSel.appendChild(fiatGroupFrom);
+    fromSel.appendChild(cryptoGroupFrom);
+    toSel.appendChild(fiatGroupTo);
+    toSel.appendChild(cryptoGroupTo);
+
     fromSel.value="USD"; toSel.value="NGN";
   }
 
@@ -122,23 +147,32 @@
       // 1. Fiat rates
       const resFiat = await fetch("https://api.exchangerate.host/latest?base=USD");
       const dataFiat = await resFiat.json();
-      rates = { USD:1, ...dataFiat.rates };
+      rates = { USD: 1, ...dataFiat.rates };
 
-      // 2. Crypto rates (top coins)
+      const fiatCodes = Object.keys(dataFiat.rates).concat(["USD"]).sort();
+
+      // 2. Crypto rates (top 50)
       const resCrypto = await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=50&page=1");
       const dataCrypto = await resCrypto.json();
 
+      const cryptoCodes = [];
       dataCrypto.forEach(c=>{
-        rates[c.symbol.toUpperCase()] = 1 / c.current_price; // 1 USD = X coin
+        const symbol = c.symbol.toUpperCase();
+        if(!rates[symbol]){
+          rates[symbol] = 1 / c.current_price;
+          cryptoCodes.push(symbol);
+        }
       });
 
-      const allCodes = Object.keys(rates).sort();
-      populate(allCodes);
-      statusBox.textContent="✅ Live fiat + crypto rates loaded";
+      populate(fiatCodes, cryptoCodes.sort());
+
+      statusBox.textContent = "✅ Live fiat + crypto rates loaded";
     }catch(e){
       rates = offlineRates;
-      populate(Object.keys(rates).sort());
-      statusBox.textContent="⚠️ Offline mode: using sample rates";
+      const fiatCodes = ["USD","EUR","GBP","NGN"];
+      const cryptoCodes = ["BTC","ETH"];
+      populate(fiatCodes, cryptoCodes);
+      statusBox.textContent = "⚠️ Offline mode: using sample rates";
     }
   }
 
@@ -148,7 +182,7 @@
     if(isNaN(amt)){ resultBox.textContent="Enter a valid amount"; return; }
     if(!rates[from] || !rates[to]){ resultBox.textContent="Currency not available"; return; }
 
-    let usdValue = amt / rates[from];  // Convert to USD first
+    let usdValue = amt / rates[from];
     let converted = usdValue * rates[to];
     resultBox.textContent = `${amt} ${from} = ${converted.toFixed(6)} ${to}`;
   });
