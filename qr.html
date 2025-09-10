@@ -59,14 +59,20 @@
   html5QrcodeScanner.render(onScanSuccess);
 
   // QR Generator
-  let qr;
   function makeQR(){
     let input=document.getElementById("qr-input").value.trim();
     let qrBox=document.getElementById("qrcode");
     let linkBox=document.getElementById("qr-link");
     qrBox.innerHTML=""; linkBox.innerHTML="";
     if(!input){qrBox.innerHTML="<p>Enter text first!</p>"; return;}
-    qr=new QRCode(qrBox,{text:input,width:200,height:200});
+
+    new QRCode(qrBox,{
+      text:input,
+      width:200,
+      height:200,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
     if(input.startsWith("http")){
       linkBox.innerHTML=`Link: <a class="link" href="${input}" target="_blank">${input}</a>`;
     } else {
@@ -75,12 +81,23 @@
   }
 
   function downloadQR(){
+    let canvas=document.querySelector("#qrcode canvas");
+    if(canvas){
+      let a=document.createElement("a");
+      a.href=canvas.toDataURL("image/png");
+      a.download="qrcode.png";
+      a.click();
+      return;
+    }
     let img=document.querySelector("#qrcode img");
-    if(!img){alert("Generate QR first!"); return;}
-    let a=document.createElement("a");
-    a.href=img.src;
-    a.download="qrcode.png";
-    a.click();
+    if(img){
+      let a=document.createElement("a");
+      a.href=img.src;
+      a.download="qrcode.png";
+      a.click();
+    } else {
+      alert("Generate QR first!");
+    }
   }
 
   function copyText(){
