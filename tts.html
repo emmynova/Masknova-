@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Text to Speech — MaskNova Tech</title>
+  <style>
+    body { background:#0a0a0f; color:#fff; font-family:sans-serif; padding:20px; text-align:center; }
+    h1 { color:#00e5ff; }
+    textarea { width:90%; max-width:600px; height:150px; padding:10px; border-radius:8px; border:1px solid #2a2f3a; background:#181824; color:#fff; }
+    select, button { margin:10px; padding:10px 20px; border-radius:8px; border:none; }
+    button { background:#00e5ff; color:#000; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<a href="dashboard.html" style="color:#00e5ff; text-decoration:none;">⬅ Back to Dashboard</a>
+<h1>Offline Text to Speech</h1>
+
+<textarea id="textInput" placeholder="Type or paste your text here..."></textarea><br>
+
+<select id="voiceSelect"></select><br>
+
+<button onclick="speakText()">Speak</button>
+<button onclick="stopSpeech()">Stop</button>
+
+<script>
+let voices = [];
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  const select = document.getElementById("voiceSelect");
+  select.innerHTML = "";
+  voices.forEach((voice, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = voice.name + " (" + voice.lang + ")";
+    select.appendChild(option);
+  });
+}
+
+function speakText() {
+  const text = document.getElementById("textInput").value;
+  if (!text) return alert("Please enter text!");
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voiceIndex = document.getElementById("voiceSelect").value;
+  utterance.voice = voices[voiceIndex];
+  speechSynthesis.speak(utterance);
+}
+
+function stopSpeech() {
+  speechSynthesis.cancel();
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+window.onload = loadVoices;
+</script>
+
+</body>
+</html>
