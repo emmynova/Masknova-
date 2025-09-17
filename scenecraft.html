@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SceneCraft — Powered by MaskNova</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: radial-gradient(circle at top, #141526, #07080f);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Floating Particles */
+    .particle {
+      position: absolute;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      animation: float 12s linear infinite;
+    }
+    @keyframes float {
+      from { transform: translateY(110vh) scale(0.5); opacity: 0; }
+      50% { opacity: 1; }
+      to { transform: translateY(-20vh) scale(1); opacity: 0; }
+    }
+
+    /* Logo Glow Effect */
+    .logo img {
+      width: 180px;
+      animation: glow 3s infinite alternate;
+    }
+    @keyframes glow {
+      0% { filter: drop-shadow(0 0 8px #00e5ff); }
+      100% { filter: drop-shadow(0 0 20px #ff2d95); }
+    }
+
+    .tagline {
+      font-size: 14px;
+      margin-top: 6px;
+      color: #9aa4b2;
+      z-index: 2;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+      width: 80%;
+      max-width: 300px;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 2;
+    }
+
+    .btn {
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      background: linear-gradient(90deg, #00e5ff, #7a5cff);
+      color: #fff;
+      text-decoration: none;
+      transition: 0.3s;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    }
+    .secondary {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 14px;
+      font-size: 13px;
+      color: #7a7f8c;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particles -->
+  <div id="particles"></div>
+
+  <!-- Splash Logo -->
+  <div class="logo">
+    <img src="scenecraft.png" alt="SceneCraft Logo">
+  </div>
+  <div class="tagline">Powered by MaskNova</div>
+
+  <!-- Buttons -->
+  <div class="buttons" id="buttons">
+    <a href="moviecreator.html" class="btn">➕ Start New Project</a>
+    <a href="#" class="btn secondary">📂 Saved Projects</a>
+    <a href="#" class="btn secondary">🔥 Trending Templates</a>
+  </div>
+
+  <footer id="footer">© 2025 MaskNova Tech</footer>
+
+  <script>
+    // Generate floating particles
+    for (let i = 0; i < 25; i++) {
+      let p = document.createElement('div');
+      p.className = 'particle';
+      let size = Math.random() * 4 + 2;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (8 + Math.random() * 10) + 's';
+      document.getElementById('particles').appendChild(p);
+    }
+
+    // Show buttons after 3s
+    setTimeout(() => {
+      document.getElementById('buttons').style.display = 'flex';
+      setTimeout(() => {
+        document.getElementById('buttons').style.opacity = '1';
+        document.getElementById('footer').style.opacity = '1';
+      }, 50);
+    }, 3000);
+  </script>
+
+</body>
+</html>
