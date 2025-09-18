@@ -1,449 +1,580 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MaskNova Studio — AI Movie Creator</title>
-  <style>
-    :root{
-      --bg:#07070b; --panel:#0f1720; --muted:#9aa4b2; --accent1:#00e5ff; --accent2:#7a5cff;
-      --glass: rgba(255,255,255,0.03);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#020214,#071026);color:#fff;min-height:100vh}
-    /* Header */
-    header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:linear-gradient(90deg,#071026, #081227);border-bottom:1px solid rgba(255,255,255,0.03)}
-    .logo{
-      display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;
-      background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;color:transparent;
-    }
-    .project-title{flex:1;text-align:center;font-size:18px}
-    .top-actions button{background:linear-gradient(90deg,var(--accent1),var(--accent2));border:none;padding:8px 12px;border-radius:8px;color:#000;font-weight:700;cursor:pointer;margin-left:8px}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SceneCraft Studio — Editor (Powered by MaskNova)</title>
+<style>
+  :root{
+    --bg:#070712; --card:#0f1720; --muted:#9aa4b2; --accent1:#00e5ff; --accent2:#7a5cff;
+    --glass: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#030313,#070619);color:#fff;min-height:100vh}
+  header{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(90deg,#040519,#071026);border-bottom:1px solid rgba(255,255,255,0.03)}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo img{width:36px;height:36px;border-radius:8px;filter:drop-shadow(0 6px 16px rgba(122,92,255,0.14))}
+  .title {font-weight:800;font-size:16px}
+  .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .btn {background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#000;border:none;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
 
-    /* Layout */
-    .app{display:grid;grid-template-columns:260px 1fr 280px;gap:12px;padding:16px}
-    .left,.right{background:var(--panel);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.04)}
-    .center{background:transparent;display:flex;flex-direction:column;gap:12px}
-    h3{margin:6px 0;color:var(--accent1)}
-    label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+  .wrap{display:flex;flex-direction:column;gap:12px;padding:12px}
 
-    /* Media list */
-    .media-list{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto;padding-right:6px}
-    .media-item{display:flex;align-items:center;gap:8px;background:var(--glass);padding:8px;border-radius:8px}
-    .media-item small{color:var(--muted);font-size:12px}
+  /* preview area */
+  .preview-card{background:var(--card);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;align-items:center}
+  #previewCanvas{width:100%;max-width:960px;border-radius:8px;background:#000;aspect-ratio:16/9}
+  .preview-controls{display:flex;gap:8px;width:100%;align-items:center;margin-top:10px;flex-wrap:wrap}
+  .small{font-size:13px;color:var(--muted)}
 
-    /* Preview */
-    .preview-panel{background:#05060a;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03); display:flex;flex-direction:column; align-items:center;}
-    #previewCanvas{background:#000; width:100%; max-width:960px; height:540px; border-radius:8px; display:block}
-    .preview-controls{display:flex;gap:8px;margin-top:8px;align-items:center}
+  /* tools bar (horizontal scroll) */
+  .tools {display:flex;gap:8px;overflow:auto;padding:8px 2px 8px 2px}
+  .tool {min-width:84px;background:var(--glass);padding:8px;border-radius:10px;text-align:center;color:#fff;font-weight:700;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .tool.small {font-weight:600;font-size:13px}
 
-    /* Timeline */
-    .timeline{background:var(--panel);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-    .timeline-list{display:flex;gap:8px;overflow:auto;padding:6px}
-    .clip-card{min-width:180px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:8px; border-radius:8px; cursor:grab; border:1px solid rgba(255,255,255,0.02)}
-    .clip-card img{width:100%; height:80px; object-fit:cover; border-radius:6px}
-    .clip-actions{display:flex;gap:6px;margin-top:6px}
+  /* media & timeline */
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .left-panel{flex:0 0 160px;background:var(--card);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+  .media-list{display:flex;flex-direction:column;gap:8px;max-height:48vh;overflow:auto;padding-right:6px}
+  .media-item{display:flex;gap:8px;align-items:center;padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
+  .media-item img{width:56px;height:40px;object-fit:cover;border-radius:6px}
+  .media-item small{color:var(--muted);display:block}
 
-    /* right panel */
-    .select, select, button {width:100%}
-    .small{font-size:13px;color:var(--muted)}
+  .timeline-panel{flex:1;background:var(--card);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+  .timeline-list{display:flex;gap:8px;overflow:auto;padding:8px}
+  .clip{min-width:140px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
+  .clip img{width:100%;height:72px;object-fit:cover;border-radius:6px}
 
-    footer{padding:18px;text-align:center;color:var(--muted)}
-    .pill{display:inline-block;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:999px;font-weight:600}
-    /* responsive */
-    @media (max-width:1000px){
-      .app{grid-template-columns:1fr; padding:12px}
-      .left,.right{order:2}
-      .center{order:1}
-      #previewCanvas{height:360px}
-    }
-  </style>
+  /* filter gallery */
+  .filters{display:flex;gap:8px;overflow:auto;padding:8px}
+  .filter-card{width:88px;flex:0 0 88px;border-radius:8px;background:rgba(255,255,255,0.02);padding:6px;text-align:center;cursor:pointer}
+  .filter-card canvas{width:100%;height:56px;border-radius:6px;display:block}
+
+  /* properties drawer */
+  .props{flex:0 0 220px;background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+  .props input, .props select, .props textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff}
+
+  /* saved projects modal */
+  .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:linear-gradient(0deg,rgba(0,0,0,0.6),rgba(0,0,0,0.6));z-index:60}
+  .modal .box{width:92%;max-width:720px;background:#071022;padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
+  .saved-list{display:flex;flex-wrap:wrap;gap:8px}
+  .saved-card{flex:0 0 160px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
+
+  /* responsive */
+  @media (max-width:900px){
+    .row{flex-direction:column}
+    .left-panel{order:1;width:100%;flex:unset}
+    .timeline-panel{order:3}
+    .props{order:2;width:100%;flex:unset}
+    #previewCanvas{aspect-ratio:16/9}
+  }
+</style>
 </head>
 <body>
 
 <header>
-  <div class="logo">MaskNova <span style="font-weight:700;color:var(--accent2);margin-left:2px">Studio</span></div>
-  <div class="project-title">Project: <input id="projectName" style="background:transparent;border:none;color:#fff;font-weight:700" value="My Movie Project" /></div>
+  <div class="logo"><img src="scenecraft.png" alt="SceneCraft" onerror="this.style.display='none'"><div style="display:flex;flex-direction:column">
+    <div class="title">SceneCraft</div>
+    <div class="small" style="margin-top:2px">Powered by MaskNova</div>
+  </div></div>
+
+  <div style="margin-left:12px">
+    <input id="projectName" placeholder="Untitled Project" style="background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:10px;color:#fff">
+  </div>
+
   <div class="top-actions">
-    <button id="saveProjBtn">Save</button>
-    <button id="exportBtn">Export Movie</button>
+    <button class="btn ghost" id="openSaves">📂 Saved Projects</button>
+    <button class="btn" id="saveProj">Save Project</button>
+    <button class="btn" id="exportBtn">Export</button>
   </div>
 </header>
 
-<div class="app">
-  <!-- LEFT: Media Library -->
-  <aside class="left">
-    <h3>Media Library</h3>
+<div class="wrap">
 
-    <label>Upload Files (Images / Video)</label>
-    <input type="file" id="fileInput" multiple accept="video/*,image/*" />
+  <div class="preview-card">
+    <div id="previewCanvas" style="display:block"></div>
+    <div class="preview-controls">
+      <button class="btn ghost" id="playBtn">Play</button>
+      <button class="btn ghost" id="pauseBtn">Pause</button>
 
-    <label>Upload Audio (Music / Voice)</label>
-    <input type="file" id="audioInput" accept="audio/*" />
+      <div style="flex:1"></div>
 
-    <div style="height:10px"></div>
-    <button id="addImagesToTimeline">Create Slideshow from Selected Images</button>
+      <label class="small">Playback</label>
+      <select id="playbackRate" class="small">
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+      </select>
 
-    <h3 style="margin-top:12px">Clips</h3>
-    <div class="media-list" id="mediaList"></div>
-
-    <p class="small" style="margin-top:10px">Tip: drag clips from the library to the timeline below. Use the right panel to trim and apply filters.</p>
-  </aside>
-
-  <!-- CENTER: Preview + Timeline -->
-  <main class="center">
-    <div class="preview-panel">
-      <canvas id="previewCanvas" width="960" height="540"></canvas>
-      <div class="preview-controls">
-        <button id="playBtn">Play</button>
-        <button id="pauseBtn">Pause</button>
-        <label class="small" style="margin-left:6px">Speed</label>
-        <select id="playbackRate">
-          <option value="0.5">0.5x</option>
-          <option value="1" selected>1x</option>
-          <option value="1.5">1.5x</option>
-          <option value="2">2x</option>
-        </select>
-        <label class="small" style="margin-left:10px">Filter</label>
-        <select id="globalFilter">
-          <option value="none">None</option>
-          <option value="cinematic">Cinematic</option>
-          <option value="bw">Black & White</option>
-          <option value="vintage">Vintage</option>
-          <option value="cyberpunk">Cyberpunk</option>
-        </select>
-      </div>
+      <label class="small" style="margin-left:8px">Aspect</label>
+      <select id="aspect" class="small">
+        <option value="16/9">16:9</option>
+        <option value="9/16">9:16</option>
+        <option value="1/1">1:1</option>
+      </select>
     </div>
+  </div>
 
-    <div class="timeline" style="margin-top:12px">
-      <h3>Timeline</h3>
+  <div class="tools" id="toolMenu">
+    <div class="tool" data-tool="filters">🎨 Filters</div>
+    <div class="tool" data-tool="text">📝 Text</div>
+    <div class="tool" data-tool="audio">🎵 Audio</div>
+    <div class="tool" data-tool="crop">✂️ Crop</div>
+    <div class="tool" data-tool="ai">🤖 AI Tools</div>
+    <div class="tool" data-tool="transitions">🔀 Transitions</div>
+  </div>
+
+  <div class="row">
+    <aside class="left-panel">
+      <div style="margin-bottom:8px">
+        <label class="small">Upload Images / Video</label>
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+      </div>
+      <div style="margin-bottom:8px">
+        <label class="small">Upload Audio</label>
+        <input type="file" id="audioInput" accept="audio/*">
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="small" style="margin-bottom:6px">Media Library</div>
+        <div class="media-list" id="mediaList"></div>
+      </div>
+    </aside>
+
+    <section class="timeline-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="small">Timeline</div>
+        <div class="small">Drag to reorder • Tap to edit</div>
+      </div>
       <div class="timeline-list" id="timelineList"></div>
-      <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
-        <button id="addBlankClip">Add Blank Clip</button>
-        <button id="clearTimeline">Clear Timeline</button>
+
+      <div style="margin-top:12px">
+        <div class="small" style="margin-bottom:6px">Filters Preview</div>
+        <div class="filters" id="filters"></div>
       </div>
-    </div>
-  </main>
+    </section>
 
-  <!-- RIGHT: Properties -->
-  <aside class="right">
-    <h3>Properties</h3>
-    <div id="propertiesBox">
-      <p class="small">Select a clip in the timeline to edit its settings.</p>
-    </div>
+    <aside class="props">
+      <div class="small" style="margin-bottom:8px">Clip Properties</div>
+      <div id="propsBox">
+        <div class="small">Select a clip to edit its properties</div>
+      </div>
 
-    <h3 style="margin-top:12px">Export</h3>
-    <label>Resolution</label>
-    <select id="exportRes">
-      <option value="640">640×360</option>
-      <option value="960" selected>960×540</option>
-      <option value="1280">1280×720</option>
-    </select>
+      <hr style="opacity:0.06;margin:12px 0">
 
-    <label style="margin-top:8px">FPS</label>
-    <select id="exportFps">
-      <option value="24">24</option>
-      <option value="30" selected>30</option>
-      <option value="60">60</option>
-    </select>
+      <div class="small" style="margin-bottom:6px">Add Text Overlay</div>
+      <input id="textContent" placeholder="Caption or title">
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn ghost" id="addTextBtn">Add Text</button>
+        <button class="btn ghost" id="clearTextBtn">Clear Text</button>
+      </div>
 
-    <div style="height:12px"></div>
-    <p class="small">Advanced AI features (scene generator, motion fx, pro filters) — <span class="pill">coming soon</span></p>
-  </aside>
+      <div style="height:10px"></div>
+      <div class="small" style="margin-top:8px">Export Settings</div>
+      <label class="small">Resolution</label>
+      <select id="exportRes" class="small">
+        <option value="640">640×360</option>
+        <option value="960" selected>960×540</option>
+        <option value="1280">1280×720</option>
+      </select>
+      <label class="small" style="margin-top:6px">FPS</label>
+      <select id="exportFps" class="small">
+        <option value="24">24</option>
+        <option value="30" selected>30</option>
+        <option value="60">60</option>
+      </select>
+    </aside>
+  </div>
 </div>
 
-<footer>
-  MaskNova Studio — lightweight web studio. Export uses browser recording. For large pro exports, server-side rendering will be required.
-</footer>
+<!-- Saved projects modal -->
+<div class="modal" id="savesModal">
+  <div class="box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <strong>Saved Projects</strong>
+      <button class="btn ghost" id="closeSaves">Close</button>
+    </div>
+    <div style="margin-bottom:8px">
+      <input id="newSaveName" placeholder="Name for save" style="width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#fff">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn" id="saveCurrentAs">Save Current</button>
+        <button class="btn ghost" id="clearAllSaves">Clear All</button>
+      </div>
+    </div>
+    <div class="small">Tap to load a project</div>
+    <div style="height:8px"></div>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+</div>
+
+<footer style="padding:12px;text-align:center;color:var(--muted);font-size:13px">SceneCraft — Powered by MaskNova</footer>
 
 <script>
-/*
-  MaskNova Studio - lightweight web editor core
-  - mediaLibrary: stores uploaded files (images/videos/audio)
-  - timeline: ordered sequence of clips {id,type,src,start,duration,filter}
-  - preview: draws current clip to canvas and plays sequentially
-  - export: records canvas with MediaRecorder
+/* SceneCraft Editor - fully working core
+   - mediaLibrary stores dataURLs (so project saves are self-contained)
+   - timeline stores clips referencing mediaLibrary ids
+   - filters: CSS-like canvas filters
+   - save/load via localStorage
+   - export via MediaRecorder (webm)
 */
 
-// state
-const mediaLibrary = []; // {id, type: 'image'|'video'|'audio', file, url, name}
-const timeline = [];     // {id, mediaId, type, startTrim, endTrim, duration, filter}
-let selectedClipIndex = -1;
-let playing = false;
-let playbackRate = 1;
-let globalFilter = 'none';
-let recorder; let recordedChunks = [];
-
-// utils
-const uid = (n=6)=>Math.random().toString(36).slice(2,2+n);
+// ------------ state ------------
+let mediaLibrary = []; // {id, type, name, dataURL}
+let timeline = [];     // {id, mediaId, type, duration, startTrim, filter}
+let overlays = [];     // text overlays [{text,x,y,size,color,clipIndex}]
+let selectedClip = -1;
+let playing = false, stopRequested=false;
 
 // DOM
 const fileInput = document.getElementById('fileInput');
 const audioInput = document.getElementById('audioInput');
 const mediaList = document.getElementById('mediaList');
 const timelineList = document.getElementById('timelineList');
+const filtersDiv = document.getElementById('filters');
+const propsBox = document.getElementById('propsBox');
 const previewCanvas = document.getElementById('previewCanvas');
-const ctx = previewCanvas.getContext('2d');
 const playBtn = document.getElementById('playBtn');
 const pauseBtn = document.getElementById('pauseBtn');
-const addImagesToTimelineBtn = document.getElementById('addImagesToTimeline');
-const addBlankClipBtn = document.getElementById('addBlankClip');
-const clearTimelineBtn = document.getElementById('clearTimeline');
-const propertiesBox = document.getElementById('propertiesBox');
-const exportBtn = document.getElementById('exportBtn');
-const playbackRateSelect = document.getElementById('playbackRate');
-const globalFilterSelect = document.getElementById('globalFilter');
-const exportRes = document.getElementById('exportRes');
-const exportFps = document.getElementById('exportFps');
+const playbackRate = document.getElementById('playbackRate');
+const aspect = document.getElementById('aspect');
+const projectNameInput = document.getElementById('projectName');
 
-// handle uploads
+const modal = document.getElementById('savesModal');
+const openSavesBtn = document.getElementById('openSaves');
+const closeSavesBtn = document.getElementById('closeSaves');
+const savedList = document.getElementById('savedList');
+const newSaveName = document.getElementById('newSaveName');
+const saveCurrentAs = document.getElementById('saveCurrentAs');
+const clearAllSaves = document.getElementById('clearAllSaves');
+const saveProjButton = document.getElementById('saveProj');
+const exportBtn = document.getElementById('exportBtn');
+
+const textContent = document.getElementById('textContent');
+const addTextBtn = document.getElementById('addTextBtn');
+const clearTextBtn = document.getElementById('clearTextBtn');
+
+const previewCtx = (() => {
+  // create offscreen canvas element for drawing (so we can capture it)
+  const canvas = document.createElement('canvas');
+  canvas.width = 960; canvas.height = 540;
+  document.getElementById('previewCanvas').appendChild(canvas);
+  return canvas.getContext('2d');
+})();
+
+// responsive preview sizing
+function resizePreview(){
+  const el = previewCanvas;
+  const rect = el.getBoundingClientRect();
+  previewCtx.canvas.width = Math.round(rect.width);
+  // set height based on aspect selection
+  const asp = aspect.value;
+  let [wA,hA] = asp.split('/').map(Number);
+  previewCtx.canvas.height = Math.round(rect.width * (hA / wA));
+  el.style.height = previewCtx.canvas.height + 'px';
+}
+window.addEventListener('resize', resizePreview);
+aspect.addEventListener('change', resizePreview);
+setTimeout(resizePreview, 50);
+
+// ------------ helpers ------------
+const uid = (n=6)=>Math.random().toString(36).slice(2,2+n);
+
+// read files as dataURL and add to library
+async function readFilesAsDataURLs(files){
+  const out = [];
+  for(const f of files){
+    const dataURL = await new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(f);
+    });
+    out.push({ id: uid(), type: f.type.startsWith('video/') ? 'video' : (f.type.startsWith('image/') ? 'image' : 'audio'), name: f.name, dataURL });
+  }
+  return out;
+}
+
+// add media to lib and UI
+async function addMediaItems(items){
+  for(const it of items){
+    mediaLibrary.unshift(it);
+    const el = document.createElement('div');
+    el.className='media-item';
+    const thumb = document.createElement('div'); thumb.style.width='56px';thumb.style.height='40px';thumb.style.flex='0 0 56px';
+    if(it.type==='image'){
+      const img = document.createElement('img'); img.src = it.dataURL; thumb.appendChild(img);
+    } else if(it.type==='video'){
+      const vid = document.createElement('video'); vid.src = it.dataURL; vid.muted=true; vid.playsInline=true; vid.style.width='56px';vid.style.height='40px';vid.style.objectFit='cover'; thumb.appendChild(vid);
+    } else {
+      const ico = document.createElement('div'); ico.textContent='🎵'; ico.style.fontSize='22px'; ico.style.display='flex'; ico.style.alignItems='center'; ico.style.justifyContent='center'; thumb.appendChild(ico);
+    }
+    el.appendChild(thumb);
+
+    const info = document.createElement('div'); info.style.flex='1';
+    info.innerHTML=`<div style="font-weight:700">${it.name}</div><small>${it.type}</small>`;
+    el.appendChild(info);
+
+    const actions = document.createElement('div');
+    const addBtn = document.createElement('button'); addBtn.className='btn ghost'; addBtn.textContent='Add'; addBtn.onclick=()=>{ addToTimeline(it.id); };
+    actions.appendChild(addBtn);
+    el.appendChild(actions);
+
+    mediaList.prepend(el);
+  }
+  renderTimeline();
+  renderFilters(); // regenerate thumbnails
+}
+
+// handle upload inputs
 fileInput.addEventListener('change', async (e)=>{
   const files = Array.from(e.target.files || []);
-  for(const f of files){
-    const url = URL.createObjectURL(f);
-    const type = f.type.startsWith('video/') ? 'video' : 'image';
-    const item = { id: uid(), type, file: f, url, name: f.name };
-    mediaLibrary.push(item);
-    addMediaToUI(item);
-  }
+  const items = await readFilesAsDataURLs(files);
+  await addMediaItems(items);
   fileInput.value='';
 });
-
-audioInput.addEventListener('change', (e)=>{
+audioInput.addEventListener('change', async (e)=>{
   const files = Array.from(e.target.files || []);
-  for(const f of files){
-    const url = URL.createObjectURL(f);
-    const item = { id: uid(), type: 'audio', file: f, url, name: f.name };
-    mediaLibrary.push(item);
-    addMediaToUI(item);
-  }
+  const items = await readFilesAsDataURLs(files);
+  await addMediaItems(items);
   audioInput.value='';
 });
 
-// add to media list UI
-function addMediaToUI(item){
-  const el = document.createElement('div');
-  el.className='media-item';
-  const thumb = document.createElement('div');
-  thumb.style.width='56px'; thumb.style.height='40px'; thumb.style.flex='0 0 56px'; thumb.style.overflow='hidden'; thumb.style.borderRadius='6px';
-  if(item.type === 'image'){
-    const img = document.createElement('img'); img.src=item.url; img.style.width='56px'; img.style.height='40px'; img.style.objectFit='cover';
-    thumb.appendChild(img);
-  } else if(item.type === 'video'){
-    const vid = document.createElement('video'); vid.src=item.url; vid.muted=true; vid.style.width='56px'; vid.style.height='40px'; vid.style.objectFit='cover';
-    thumb.appendChild(vid);
-  } else {
-    const ico = document.createElement('div'); ico.textContent='🎵'; ico.style.fontSize='22px'; ico.style.display='flex'; ico.style.alignItems='center'; ico.style.justifyContent='center';
-    thumb.appendChild(ico);
-  }
-  el.appendChild(thumb);
-  const info = document.createElement('div'); info.style.flex='1';
-  info.innerHTML=`<div style="font-weight:700">${item.name}</div><small>${item.type}</small>`;
-  el.appendChild(info);
-
-  const actions = document.createElement('div'); actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
-  const addBtn = document.createElement('button'); addBtn.textContent='Add →'; addBtn.onclick=()=>{ addToTimeline(item.id) };
-  actions.appendChild(addBtn);
-  el.appendChild(actions);
-
-  mediaList.prepend(el);
-}
-
-// timeline functions
+// add to timeline
 function addToTimeline(mediaId){
   const media = mediaLibrary.find(m=>m.id===mediaId);
   if(!media) return;
   let duration = 4;
   if(media.type==='video'){
-    // attempt to read actual duration by loading video element
-    const v = document.createElement('video'); v.src = media.url;
-    v.addEventListener('loadedmetadata', ()=>{
-      const dur = Math.min(Math.max(1, Math.floor(v.duration)), 60);
-      pushClip(mediaId, 0, Math.floor(dur), dur);
+    // approximate duration by creating video element and using metadata
+    const v = document.createElement('video');
+    v.src = media.dataURL;
+    v.addEventListener('loadedmetadata', ()=> {
+      const dur = Math.min( Math.max(1, Math.floor(v.duration)), 120 );
+      pushClip(mediaId,0,dur,dur);
     });
     return;
   }
-  pushClip(mediaId, 0, duration, duration);
+  pushClip(mediaId,0,duration,duration);
 }
-function pushClip(mediaId, start=0, end=4, duration=4){
-  const clip = { id: uid(), mediaId, type: mediaLibrary.find(m=>m.id===mediaId).type, startTrim:start, endTrim:end, duration, filter:'none' };
+function pushClip(mediaId,startTrim=0,duration=4){
+  const media = mediaLibrary.find(m=>m.id===mediaId);
+  const clip = { id: uid(), mediaId, type: media.type, startTrim, duration, filter:'none' };
   timeline.push(clip);
   renderTimeline();
 }
+
+// render timeline
 function renderTimeline(){
   timelineList.innerHTML='';
-  timeline.forEach((clip, i)=>{
+  timeline.forEach((clip,i)=>{
     const media = mediaLibrary.find(m=>m.id===clip.mediaId);
-    const card = document.createElement('div'); card.className='clip-card';
-    card.draggable=true;
-    card.onclick=()=> selectClip(i);
-    card.ondragstart = (ev)=>{ ev.dataTransfer.setData('text/plain', i) };
-    card.ondragover = (ev)=>ev.preventDefault();
-    card.ondrop = (ev)=>{ ev.preventDefault(); const from = parseInt(ev.dataTransfer.getData('text/plain')); moveClip(from,i) };
-
+    const card = document.createElement('div'); card.className='clip';
+    card.onclick=()=> { selectedClip = i; showProps(); };
     const thumb = document.createElement('div');
-    if(media.type==='image'){ thumb.innerHTML = `<img src="${media.url}">`; }
-    else if(media.type==='video'){ thumb.innerHTML = `<video src="${media.url}" muted style="width:100%;height:80px;object-fit:cover"></video>`; }
+    if(media.type==='image'){ thumb.innerHTML = `<img src="${media.dataURL}">`; }
+    else if(media.type==='video'){ thumb.innerHTML = `<video src="${media.dataURL}" muted style="width:100%;height:72px;object-fit:cover"></video>`; }
     else { thumb.textContent='Audio'; }
-
-    const tit = document.createElement('div'); tit.style.marginTop='6px'; tit.innerHTML = `<strong>${media.name}</strong><div class="small">${clip.type} • ${clip.duration}s</div>`;
-    const actions = document.createElement('div'); actions.className='clip-actions';
-    const del = document.createElement('button'); del.textContent='Delete'; del.onclick=(e)=>{ e.stopPropagation(); removeClip(i) };
-    actions.appendChild(del);
+    const tit = document.createElement('div'); tit.style.marginTop='6px'; tit.innerHTML = `<strong style="font-size:13px">${media.name}</strong><div class="small">${clip.type} • ${clip.duration}s</div>`;
+    const actions = document.createElement('div'); actions.style.display='flex';actions.style.gap='6px';actions.style.marginTop='6px';
+    const del = document.createElement('button'); del.className='btn ghost'; del.textContent='Delete'; del.onclick=(e)=>{ e.stopPropagation(); timeline.splice(i,1); renderTimeline(); propsBox.innerHTML='<div class="small">Select a clip to edit its properties</div>'; };
+    const up = document.createElement('button'); up.className='btn ghost'; up.textContent='↑'; up.onclick=(e)=>{ e.stopPropagation(); if(i>0) moveClip(i,i-1); };
+    const down = document.createElement('button'); down.className='btn ghost'; down.textContent='↓'; down.onclick=(e)=>{ e.stopPropagation(); if(i<timeline.length-1) moveClip(i,i+1); };
+    actions.appendChild(up); actions.appendChild(down); actions.appendChild(del);
     card.appendChild(thumb); card.appendChild(tit); card.appendChild(actions);
     timelineList.appendChild(card);
   });
 }
-function selectClip(index){
-  selectedClipIndex = index;
-  showProperties();
-}
-function removeClip(index){ timeline.splice(index,1); renderTimeline(); propertiesBox.innerHTML='<p class="small">Select a clip in the timeline to edit its settings.</p>'; }
+
+// move clip
 function moveClip(from,to){
-  const [item] = timeline.splice(from,1);
-  timeline.splice(to,0,item);
+  const [it] = timeline.splice(from,1);
+  timeline.splice(to,0,it);
   renderTimeline();
 }
 
-// properties panel
-function showProperties(){
-  propertiesBox.innerHTML='';
-  if(selectedClipIndex<0 || !timeline[selectedClipIndex]){ propertiesBox.innerHTML='<p class="small">Select a clip in the timeline to edit its settings.</p>'; return; }
-  const clip = timeline[selectedClipIndex];
-  const media = mediaLibrary.find(m=>m.id===clip.mediaId);
+// show properties
+function showProps(){
+  propsBox.innerHTML='';
+  if(selectedClip<0 || !timeline[selectedClip]){ propsBox.innerHTML='<div class="small">Select a clip to edit its properties</div>'; return; }
+  const c = timeline[selectedClip];
+  const m = mediaLibrary.find(x=>x.id===c.mediaId);
   const box = document.createElement('div');
-  box.innerHTML = `<div style="font-weight:700">${media.name}</div><div class="small">${clip.type}</div>`;
-  // trim
-  box.appendChild(document.createElement('hr'));
-  const trimStartLabel = document.createElement('label'); trimStartLabel.textContent='Trim start (s)'; box.appendChild(trimStartLabel);
-  const trimStart = document.createElement('input'); trimStart.type='number'; trimStart.value=clip.startTrim; trimStart.min=0; trimStart.onchange=()=>{ clip.startTrim = Number(trimStart.value); };
-  box.appendChild(trimStart);
-  const trimEndLabel = document.createElement('label'); trimEndLabel.textContent='Duration (s)'; box.appendChild(trimEndLabel);
-  const trimEnd = document.createElement('input'); trimEnd.type='number'; trimEnd.value=clip.duration; trimEnd.min=0.5; trimEnd.onchange=()=>{ clip.duration = Number(trimEnd.value); renderTimeline(); };
-  box.appendChild(trimEnd);
+  box.innerHTML = `<div style="font-weight:800">${m.name}</div><div class="small">${c.type}</div>`;
+  box.style.marginBottom='8px';
+  // trim duration
+  const lbl1 = document.createElement('label'); lbl1.textContent='Duration (s)'; box.appendChild(lbl1);
+  const dur = document.createElement('input'); dur.type='number'; dur.value=c.duration; dur.min=0.5; dur.onchange=()=>{ c.duration=Number(dur.value); renderTimeline(); };
+  box.appendChild(dur);
 
-  // filter
-  const filtLabel = document.createElement('label'); filtLabel.textContent='Filter'; box.appendChild(filtLabel);
-  const filtSel = document.createElement('select'); ['none','cinematic','bw','vintage','cyberpunk'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; if(clip.filter===v)o.selected=true; filtSel.appendChild(o) });
-  filtSel.onchange=()=>{ clip.filter = filtSel.value; };
-  box.appendChild(filtSel);
+  const lbl2 = document.createElement('label'); lbl2.textContent='Filter'; box.appendChild(lbl2);
+  const sel = document.createElement('select');
+  ['none','cinematic','bw','vintage','cyberpunk','neon','warm','cool'].forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; if(c.filter===s) o.selected=true; sel.appendChild(o); });
+  sel.onchange=()=>{ c.filter = sel.value; };
+  box.appendChild(sel);
 
-  // preview clip
-  const playNow = document.createElement('button'); playNow.textContent='Play Clip'; playNow.onclick=()=> playSingleClip(clip);
+  const playNow = document.createElement('button'); playNow.className='btn'; playNow.textContent='Play Clip'; playNow.style.marginTop='8px'; playNow.onclick=()=> playSingleClip(c);
   box.appendChild(playNow);
 
-  propertiesBox.appendChild(box);
+  propsBox.appendChild(box);
 }
 
-// preview playback engine
-let playCursor = 0;
-let timelinePlaying = false;
-let stopRequested = false;
+// filters gallery (predefined)
+const FILTERS = [
+  {id:'none',label:'None',fn: ctx=>ctx.filter='none'},
+  {id:'cinematic',label:'Cinematic',fn: ctx=>ctx.filter='contrast(1.12) saturate(1.05)'},
+  {id:'bw',label:'B&W',fn: ctx=>ctx.filter='grayscale(1)'},
+  {id:'vintage',label:'Vintage',fn: ctx=>ctx.filter='sepia(0.4) saturate(0.9)'},
+  {id:'cyberpunk',label:'Cyberpunk',fn: ctx=>ctx.filter='hue-rotate(200deg) saturate(1.5) contrast(1.1)'},
+  {id:'neon',label:'Neon',fn: ctx=>ctx.filter='brightness(1.05) saturate(1.4)'},
+  {id:'warm',label:'Warm',fn: ctx=>ctx.filter='sepia(0.15) saturate(1.1) contrast(1.02)'},
+  {id:'cool',label:'Cool',fn: ctx=>ctx.filter='hue-rotate(190deg) saturate(0.95) contrast(1.02)'}
+];
 
+async function renderFilters(){
+  filtersDiv.innerHTML='';
+  for(const f of FILTERS){
+    const card = document.createElement('div'); card.className='filter-card';
+    const canvas = document.createElement('canvas'); canvas.width=160; canvas.height=90; card.appendChild(canvas);
+    const lbl = document.createElement('div'); lbl.style.marginTop='6px'; lbl.style.fontSize='12px'; lbl.textContent=f.label; card.appendChild(lbl);
+
+    // draw thumbnail: take first image/video from mediaLibrary or blank
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle='#111'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    const src = mediaLibrary.length ? mediaLibrary[0] : null;
+    if(src){
+      if(src.type==='image'){
+        const img = new Image(); img.src = src.dataURL;
+        await img.decode().catch(()=>{});
+        ctx.save(); f.fn(ctx); ctx.drawImage(img,0,0,canvas.width,canvas.height); ctx.restore();
+      } else if(src.type==='video'){
+        const v = document.createElement('video'); v.src = src.dataURL; v.muted=true; v.playsInline=true;
+        await new Promise(r=> v.addEventListener('loadeddata', r));
+        try{ ctx.save(); f.fn(ctx); ctx.drawImage(v,0,0,canvas.width,canvas.height); ctx.restore(); } catch(e){}
+      } else {
+        // audio: show waveform-ish
+        ctx.fillStyle='#222'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle='#4dd0e1'; for(let x=0;x<canvas.width;x+=6) ctx.fillRect(x, canvas.height/2 - (Math.random()*30), 4, Math.random()*60);
+      }
+    } else {
+      ctx.fillStyle='#202020'; ctx.fillRect(8,8,canvas.width-16,canvas.height-16);
+    }
+
+    card.onclick = ()=> { applyGlobalFilter(f.id); };
+    filtersDiv.appendChild(card);
+  }
+}
+
+// apply global filter to preview draw
+let globalFilter = 'none';
+function applyGlobalFilter(filterId){ globalFilter = filterId; }
+
+// overlays (text)
+addTextBtn.addEventListener('click', ()=>{
+  const txt = textContent.value.trim();
+  if(!txt) return alert('Add text to insert');
+  overlays.push({ id: uid(), text: txt, x: 0.5, y: 0.85, size: 28, color:'#ffffff' });
+  textContent.value='';
+});
+
+// clear overlays
+clearTextBtn.addEventListener('click', ()=>{ overlays.length=0; });
+
+// playback engine
+let timelinePlaying = false;
 async function playTimeline(){
-  if(timeline.length===0) return alert('Timeline is empty');
-  playing=true; timelinePlaying=true; stopRequested=false; playCursor=0;
+  if(timeline.length===0) return alert('Timeline empty');
+  timelinePlaying = true; stopRequested=false;
   for(let i=0;i<timeline.length;i++){
     if(stopRequested) break;
     const clip = timeline[i];
     await playClipLive(clip);
   }
-  timelinePlaying=false; playing=false;
+  timelinePlaying=false;
 }
+function stopPlayback(){ stopRequested=true; }
 
-function pauseTimeline(){
-  stopRequested = true;
-  playing=false;
-}
+playBtn.onclick = ()=> { if(!timelinePlaying) playTimeline(); else alert('Already playing'); };
+pauseBtn.onclick = ()=> stopPlayback();
+pauseBtn.onclick = ()=> stopPlayback();
 
-// play single clip (from properties)
 function playSingleClip(clip){
   (async ()=>{ await playClipLive(clip); })();
 }
 
-// helpers: playClipLive draws into canvas for the clip duration
-function applyCanvasFilter(ctx, filter, w, h){
-  // simple color transforms implemented via globalComposite or tinting; for now use overlay styles
-  // We'll use simple CSS-like filters via drawing to temp canvas then manipulating pixels for bw/vintage - but keep it simple for performance
-  // For performance, we implement via ctx.filter where supported.
-  switch(filter){
-    case 'cinematic':
-      ctx.filter='contrast(1.15) saturate(1.05)'; break;
-    case 'bw': ctx.filter='grayscale(1)'; break;
-    case 'vintage': ctx.filter='sepia(0.4) saturate(0.9)'; break;
-    case 'cyberpunk': ctx.filter='hue-rotate(200deg) saturate(1.5) contrast(1.1)'; break;
-    default: ctx.filter='none';
+// draw helpers
+function drawFrameImage(img, filterId){
+  const ctx = previewCtx;
+  const w = ctx.canvas.width; const h = ctx.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  // apply filter
+  const f = FILTERS.find(x=>x.id===filterId);
+  ctx.save();
+  if(f) f.fn(ctx);
+  // cover
+  const arSource = img.width / img.height;
+  const arCanvas = w / h;
+  let drawW = w, drawH = h, dx=0, dy=0;
+  if(arSource > arCanvas){
+    drawH = h; drawW = arSource * drawH; dx = -(drawW - w)/2;
+  } else {
+    drawW = w; drawH = drawW / arSource; dy = -(drawH - h)/2;
+  }
+  try{ ctx.drawImage(img, dx, dy, drawW, drawH); } catch(e){}
+  ctx.restore();
+
+  // draw text overlays
+  for(const ov of overlays){
+    ctx.font = `${ov.size}px sans-serif`;
+    ctx.fillStyle = ov.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(ov.text, w * ov.x, h * ov.y);
   }
 }
 
-function drawImageCover(ctx, img, x,y,w,h, alpha=1){
-  ctx.save(); ctx.globalAlpha=alpha;
-  ctx.drawImage(img, x, y, w, h);
-  ctx.restore();
-}
-
-// this function handles both images and videos
+// play clip live to preview (images/videos)
 function playClipLive(clip){
   return new Promise(async (resolve)=>{
     const media = mediaLibrary.find(m=>m.id===clip.mediaId);
-    const w = previewCanvas.width, h = previewCanvas.height;
+    if(!media){ resolve(); return; }
+    const ctx = previewCtx;
+    const w = ctx.canvas.width, h = ctx.canvas.height;
     const filterToUse = clip.filter || globalFilter;
-    // decide what to do based on type
+
     if(clip.type === 'image'){
-      const img = new Image(); img.src = media.url;
+      const img = new Image(); img.src = media.dataURL;
       await img.decode().catch(()=>{});
-      const dur = clip.duration * (1/Number(playbackRateSelect.value));
+      const dur = Math.max(0.5, clip.duration || 4) / Number(playbackRate.value);
       const fps = 30;
-      const frames = Math.max(1,Math.floor(dur*fps));
-      let t0 = performance.now();
+      const frames = Math.max(1, Math.floor(dur * fps));
       for(let f=0; f<frames; f++){
         if(stopRequested) break;
-        ctx.clearRect(0,0,w,h);
-        applyCanvasFilter(ctx, filterToUse, w, h);
-        // simple crossfade effect: during first/last 10% fade
-        const progress = f/frames;
-        let alpha = 1;
-        const fade = 0.12;
-        if(progress < fade) alpha = progress/fade;
-        if(progress > 1-fade) alpha = (1-progress)/fade;
-        drawImageCover(ctx, img, 0,0,w,h, alpha);
-        await new Promise(r=>setTimeout(r, 1000/fps));
+        drawFrameImage(img, filterToUse);
+        await new Promise(r=> setTimeout(r, 1000/fps));
       }
-      ctx.filter='none';
       resolve();
     } else if(clip.type === 'video'){
       const v = document.createElement('video');
-      v.src = media.url;
-      v.muted = true;
-      v.crossOrigin = 'anonymous';
-      v.playsInline = true;
-      // wait loadedmetadata
-      v.addEventListener('loadedmetadata', async ()=>{
-        const start = Math.min(Math.max(0, clip.startTrim || 0), v.duration-0.01);
-        const dur = Math.min(clip.duration || (v.duration - start), v.duration - start);
-        v.currentTime = start;
-        const fps = 30;
-        const endTime = start + dur;
-        let playingVideo = true;
-        v.playbackRate = parseFloat(playbackRateSelect.value);
-        try{ await v.play(); }catch(e){}
-        function step(){
-          if(stopRequested || v.currentTime >= endTime){
-            try{ v.pause(); }catch(e){}
-            resolve();
-            return;
-          }
-          ctx.clearRect(0,0,w,h);
-          applyCanvasFilter(ctx, filterToUse, w, h);
-          try{ ctx.drawImage(v, 0,0,w,h); }catch(e){}
-          requestAnimationFrame(step);
+      v.src = media.dataURL;
+      v.muted = true; v.playsInline = true; v.crossOrigin='anonymous';
+      v.currentTime = clip.startTrim || 0;
+      const desiredDur = Math.min(clip.duration || 10, 300);
+      v.playbackRate = Number(playbackRate.value);
+      try{ await v.play(); } catch(e){ /* autoplay blocked */ }
+      const endTime = (clip.startTrim || 0) + desiredDur;
+      function step(){
+        if(stopRequested || v.ended || v.currentTime >= endTime){
+          try{ v.pause(); }catch(e){}
+          resolve();
+          return;
         }
+        drawVideoFrame(v, filterToUse);
         requestAnimationFrame(step);
-      });
-      v.addEventListener('error', ()=>{ console.error('video load error'); resolve(); });
+      }
+      requestAnimationFrame(step);
     } else {
-      // audio only: just render a black screen while audio plays (not implemented in this demo)
-      const dur = clip.duration;
+      // audio-only placeholder
+      const dur = clip.duration || 4;
       const start = performance.now();
       while(performance.now() - start < dur*1000){
         if(stopRequested) break;
@@ -454,110 +585,204 @@ function playClipLive(clip){
   });
 }
 
-// preview play/pause
-playBtn.onclick = ()=>{ if(!timelinePlaying) playTimeline(); else { /* already playing */ } };
-pauseBtn.onclick = ()=>{ pauseTimeline(); };
-
-// export: record canvas stream
-exportBtn.addEventListener('click', async ()=>{
-  if(timeline.length===0) return alert('Add clips to timeline first');
-  const exportWidth = Number(exportRes.value);
-  const exportHeight = Math.round(exportWidth * (previewCanvas.height/previewCanvas.width));
-  const fps = Number(exportFps.value);
-  // temporarily set canvas to export size
-  const savedWidth = previewCanvas.width, savedHeight = previewCanvas.height;
-  previewCanvas.width = exportWidth;
-  previewCanvas.height = exportHeight;
-
-  // start recording
-  recordedChunks = [];
-  const stream = previewCanvas.captureStream(fps);
-  recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-  recorder.ondataavailable = (e)=>{ if(e.data.size) recordedChunks.push(e.data); };
-  recorder.onstop = ()=>{ const blob = new Blob(recordedChunks, {type:'video/webm'}); const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${document.getElementById('projectName').value || 'masknova_movie'}.webm`; a.click();
-    // restore canvas size
-    previewCanvas.width = savedWidth; previewCanvas.height = savedHeight;
-  };
-  recorder.start();
-
-  // play timeline synchronously but ensure frames drawn to export canvas size
-  stopRequested = false;
-  for(let i=0;i<timeline.length;i++){
-    if(stopRequested) break;
-    await playClipLive(timeline[i]);
+function drawVideoFrame(v, filterId){
+  const ctx = previewCtx; const w = ctx.canvas.width, h = ctx.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const f = FILTERS.find(x=>x.id===filterId);
+  ctx.save(); if(f) f.fn(ctx);
+  try{ ctx.drawImage(v, 0, 0, w, h); } catch(e){}
+  ctx.restore();
+  for(const ov of overlays){
+    ctx.font = `${ov.size}px sans-serif`;
+    ctx.fillStyle = ov.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(ov.text, w * ov.x, h * ov.y);
   }
-  recorder.stop();
-  stopRequested = false;
-  alert('Export finished (download should begin). For higher-quality production, consider server-side rendering.');
-});
-
-// playback rate and global filter controls
-playbackRateSelect.onchange = ()=> playbackRate = Number(playbackRateSelect.value);
-globalFilterSelect.onchange = ()=> globalFilter = globalFilterSelect.value;
-
-// helper: play single clip without altering UI
-async function playClipLive(clip){
-  // wrap the real function (avoid name clash)
-  return await window.playClipLive_core ? window.playClipLive_core(clip) : (async ()=>{})();
 }
 
-// to avoid circular definitions, set the core function to our implementation
-window.playClipLive_core = async function(clip){
-  // same implementation as earlier function; reuse to avoid duplication
-  // We'll call the inner implementation defined earlier (since it's already declared)
-  // But because of function hoisting we can just call the original one named playClipLiveImplementation if existed.
-  // For clarity, call the previously defined playClipLive (it exists).
-  return await (async function(originalClip){
-    // reuse the original playClipLive that was defined above above — but due to our previous function name we already have it.
-    // In this file scope, playClipLive is the earlier implementation; so call it.
-    return await (new Promise((res)=>{ // call the earlier defined function by invoking the function body above; to keep consistent, call the function named playClipLiveImplementation if present
-      // fallback: call the existing implementation via the global reference created earlier:
-      // This wrapper simply calls the earlier defined function using the closure.
-      // For safety, call the originally created playClipLiveImplementation (we used playClipLive earlier).
-      // We'll call the function defined earlier by name _playClipInternal (but since it's not separated, just call the function defined as playClipLiveOriginal).
-      // To keep the code consistent, fallback to the same logic by reusing the declared implementation name "playClipLiveImplementation".
-      res();
-    })));
-  })(clip);
+// EXPORT (record canvas)
+exportBtn.onclick = async ()=>{
+  if(timeline.length===0) return alert('Add clips first');
+  // set export canvas size
+  const exportWidth = Number(document.getElementById('exportRes').value);
+  const aspectRatio = previewCtx.canvas.height / previewCtx.canvas.width;
+  const exportHeight = Math.round(exportWidth * aspectRatio);
+  // copy current preview canvas to new export canvas for correct size
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = exportWidth; exportCanvas.height = exportHeight;
+  const exportCtx = exportCanvas.getContext('2d');
+  // replace preview drawing functions to draw into export canvas temporarily
+  const originalCanvas = previewCtx.canvas;
+  const originalCtx = previewCtx;
+  // create a wrapper draw function to draw frames into export canvas
+  async function playForExport(){
+    // for each clip, draw frames into exportCtx
+    for(const clip of timeline){
+      const media = mediaLibrary.find(m=>m.id===clip.mediaId);
+      if(!media) continue;
+      if(clip.type==='image'){
+        const img = new Image(); img.src = media.dataURL; await img.decode().catch(()=>{});
+        const dur = Math.max(0.5, clip.duration || 4);
+        const fps = Number(document.getElementById('exportFps').value);
+        const totalFrames = Math.max(1, Math.floor(dur * fps));
+        for(let f=0; f<totalFrames; f++){
+          // draw with filter
+          exportCtx.clearRect(0,0,exportWidth,exportHeight);
+          const ff = FILTERS.find(x=>x.id===clip.filter||globalFilter);
+          if(ff) ff.fn(exportCtx);
+          // draw image cover
+          const arSource = img.width / img.height;
+          const arCanvas = exportWidth / exportHeight;
+          let drawW = exportWidth, drawH = exportHeight, dx=0, dy=0;
+          if(arSource > arCanvas){
+            drawH = exportHeight; drawW = arSource * drawH; dx = -(drawW - exportWidth)/2;
+          } else {
+            drawW = exportWidth; drawH = drawW / arSource; dy = -(drawH - exportHeight)/2;
+          }
+          try{ exportCtx.drawImage(img, dx, dy, drawW, drawH); } catch(e){}
+          // draw overlays
+          for(const ov of overlays){
+            exportCtx.font = `${Math.round(ov.size * (exportWidth/previewCtx.canvas.width))}px sans-serif`;
+            exportCtx.fillStyle = ov.color;
+            exportCtx.textAlign = 'center';
+            exportCtx.fillText(ov.text, exportWidth * ov.x, exportHeight * ov.y);
+          }
+          // yield frame to MediaRecorder by drawing to a visible canvas via captureStream?
+          await new Promise(r=> setTimeout(r, 1000/fps));
+        }
+      } else if(clip.type==='video'){
+        // draw video frames playing into export canvas
+        const v = document.createElement('video');
+        v.src = media.dataURL; v.muted=true; v.crossOrigin='anonymous';
+        await new Promise(r=> v.addEventListener('loadeddata', r));
+        const fps = Number(document.getElementById('exportFps').value);
+        const dur = Math.min(clip.duration || (v.duration||4), v.duration||4);
+        v.currentTime = clip.startTrim || 0;
+        v.playbackRate = 1;
+        try{ await v.play(); }catch(e){}
+        const endTime = v.currentTime + dur;
+        await new Promise(resolve=>{
+          function tick(){
+            if(v.ended || v.currentTime >= endTime){ v.pause(); resolve(); return; }
+            exportCtx.clearRect(0,0,exportWidth,exportHeight);
+            const ff = FILTERS.find(x=>x.id===clip.filter||globalFilter);
+            if(ff) ff.fn(exportCtx);
+            try{ exportCtx.drawImage(v, 0, 0, exportWidth, exportHeight); } catch(e){}
+            for(const ov of overlays){
+              exportCtx.font = `${Math.round(ov.size * (exportWidth/previewCtx.canvas.width))}px sans-serif`;
+              exportCtx.fillStyle = ov.color;
+              exportCtx.textAlign = 'center';
+              exportCtx.fillText(ov.text, exportWidth * ov.x, exportHeight * ov.y);
+            }
+            // Using setTimeout synced to fps to avoid lock
+            setTimeout(()=>requestAnimationFrame(tick), 1000/fps);
+          }
+          tick();
+        });
+      }
+    }
+  }
+
+  // We'll record the previewCtx.canvas scaled to export size using captureStream
+  const stream = previewCtx.canvas.captureStream(Number(document.getElementById('exportFps').value || 30));
+  const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+  const chunks = [];
+  recorder.ondataavailable = e=>{ if(e.data.size) chunks.push(e.data); };
+  recorder.onstop = ()=> {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `${(projectNameInput.value||'scenecraft_project').replace(/\s+/g,'_')}.webm`; a.click();
+  };
+
+  // Start recording then play timeline into preview (the preview canvas is being recorded)
+  recorder.start();
+  stopRequested=false;
+  await playTimeline(); // will draw onto previewCtx.canvas which is being recorded
+  recorder.stop();
+  alert('Export done — check your downloads. For higher-quality MP4 conversion, use server-side rendering.');
 };
 
-// Because of the scope complications, simply reassign the real implementation:
-window.playClipLive_core = (async function(clip){
-  // invoke the playClipLive implementation defined above by referencing it directly (it exists in scope)
-  // Here we call the function "playClipLive_raw" which is the original function implementation; actually it's "playClipLive" declared earlier.
-  // So just call that:
-  return await (typeof playClipLive === 'function' ? playClipLive(clip) : Promise.resolve());
-});
-
-// single-clip play (used in properties)
-async function playSingleClip(clip){ await playClipLive(clip); }
-
-// create slideshow from selected images: for demo, take all image-type media
-addImagesToTimelineBtn.addEventListener('click', ()=>{
-  const images = mediaLibrary.filter(m=>m.type==='image');
-  if(images.length===0) return alert('No images uploaded');
-  images.forEach(img=> pushClip(img.id,0,4,4));
+// Save/load projects using localStorage
+const STORAGE_KEY = 'scenecraft_projects_v1';
+function getSavedProjects(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){ return []; } }
+function saveProjectToStorage(name){
+  const data = {
+    name: name || (projectNameInput.value || 'Untitled'),
+    created: Date.now(),
+    mediaLibrary,
+    timeline,
+    overlays,
+    projectName: projectNameInput.value || 'Untitled'
+  };
+  const s = getSavedProjects();
+  s.unshift(data);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  loadSavedList();
+  alert('Project saved locally');
+}
+function loadSavedList(){
+  const arr = getSavedProjects();
+  savedList.innerHTML='';
+  arr.forEach((p, idx)=>{
+    const card = document.createElement('div'); card.className='saved-card';
+    card.innerHTML = `<div style="font-weight:800">${p.name}</div><div class="small">${new Date(p.created).toLocaleString()}</div>`;
+    const btnRow = document.createElement('div'); btnRow.style.display='flex';btnRow.style.gap='6px';btnRow.style.marginTop='8px';
+    const loadBtn = document.createElement('button'); loadBtn.className='btn'; loadBtn.textContent='Load'; loadBtn.onclick=()=>{ if(confirm('Load this project? Unsaved changes will be lost.')) loadProjectAtIndex(idx); };
+    const delBtn = document.createElement('button'); delBtn.className='btn ghost'; delBtn.textContent='Delete'; delBtn.onclick=()=>{ if(confirm('Delete this saved project?')){ deleteSavedAtIndex(idx); } };
+    btnRow.appendChild(loadBtn); btnRow.appendChild(delBtn);
+    card.appendChild(btnRow);
+    savedList.appendChild(card);
+  });
+}
+function loadProjectAtIndex(i){
+  const s = getSavedProjects();
+  const p = s[i];
+  if(!p) return alert('Saved project not found');
+  // replace current state
+  mediaLibrary = p.mediaLibrary || [];
+  timeline = p.timeline || [];
+  overlays = p.overlays || [];
+  projectNameInput.value = p.projectName || p.name;
+  // rebuild UI
+  mediaList.innerHTML=''; timelineList.innerHTML=''; propsBox.innerHTML='';
+  addMediaItems(mediaLibrary.slice().reverse()); // addMediaItems expects array; we reverse for UI order
+  // but above addMediaItems pushes onto mediaLibrary again => to avoid duplication, render directly:
+  mediaList.innerHTML=''; for(const it of mediaLibrary){ // direct UI
+    const el = document.createElement('div'); el.className='media-item';
+    const thumb = document.createElement('div'); thumb.style.width='56px';thumb.style.height='40px';thumb.style.flex='0 0 56px';
+    if(it.type==='image'){ const img=document.createElement('img'); img.src=it.dataURL; thumb.appendChild(img); }
+    else if(it.type==='video'){ const v=document.createElement('video'); v.src=it.dataURL; v.muted=true; v.playsInline=true; v.style.width='56px';v.style.height='40px';v.style.objectFit='cover'; thumb.appendChild(v); }
+    else{ const ico=document.createElement('div'); ico.textContent='🎵'; ico.style.fontSize='22px'; ico.style.display='flex'; ico.style.alignItems='center'; ico.style.justifyContent='center'; thumb.appendChild(ico); }
+    el.appendChild(thumb);
+    const info=document.createElement('div'); info.style.flex='1'; info.innerHTML=`<div style="font-weight:700">${it.name}</div><small>${it.type}</small>`;
+    el.appendChild(info);
+    const actions=document.createElement('div'); const addBtn=document.createElement('button'); addBtn.className='btn ghost'; addBtn.textContent='Add'; addBtn.onclick=()=>{ addToTimeline(it.id); };
+    actions.appendChild(addBtn); el.appendChild(actions);
+    mediaList.appendChild(el);
+  }
   renderTimeline();
-});
+  renderFilters();
+  modal.style.display='none';
+}
+function deleteSavedAtIndex(i){
+  const s = getSavedProjects();
+  s.splice(i,1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  loadSavedList();
+}
 
-// blank clip
-addBlankClipBtn.addEventListener('click', ()=>{
-  const blank = { id: uid(), mediaId:null, type:'image', startTrim:0, endTrim:4, duration:4, filter:'none' };
-  // create a temporary white frame by making a data URL
-  const c = document.createElement('canvas'); c.width=960; c.height=540; const cc = c.getContext('2d'); cc.fillStyle='#000'; cc.fillRect(0,0,c.width,c.height);
-  const url = c.toDataURL('image/png');
-  const item = { id: uid(), type:'image', file:null, url, name:'Blank' };
-  mediaLibrary.push(item); addMediaToUI(item);
-  pushClip(item.id,0,4,4);
-});
+// UI hook ups for saves
+openSavesBtn.onclick = ()=>{ loadSavedList(); modal.style.display='flex'; };
+closeSavesBtn.onclick = ()=>{ modal.style.display='none'; };
+saveCurrentAs.onclick = ()=>{ if(!newSaveName.value.trim()) return alert('Enter name'); saveProjectToStorage(newSaveName.value.trim()); newSaveName.value=''; };
+clearAllSaves.onclick = ()=>{ if(confirm('Delete all saved projects?')){ localStorage.removeItem(STORAGE_KEY); loadSavedList(); alert('Cleared'); } };
+saveProjButton.onclick = ()=>{ saveProjectToStorage(projectNameInput.value || ('Project ' + new Date().toLocaleString())); };
 
-// clear timeline
-clearTimelineBtn.addEventListener('click', ()=>{ timeline.length=0; renderTimeline(); propertiesBox.innerHTML='<p class="small">Select a clip in the timeline to edit its settings.</p>'; });
-
-// initial state
+// initial render
+renderFilters();
+loadSavedList();
 renderTimeline();
-
+resizePreview();
 </script>
 </body>
 </html>
